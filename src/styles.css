@@ -1,0 +1,383 @@
+:root {
+  font-family: "Trebuchet MS", "Comic Sans MS", sans-serif;
+  color: #17324d;
+  background:
+    radial-gradient(circle at top left, #fff4b8 0%, rgba(255, 244, 184, 0.55) 20%, transparent 45%),
+    radial-gradient(circle at top right, #c1f4ff 0%, rgba(193, 244, 255, 0.55) 18%, transparent 40%),
+    linear-gradient(180deg, #fffaf0 0%, #f3fbff 100%);
+  line-height: 1.4;
+  font-weight: 400;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+}
+
+button,
+input {
+  font: inherit;
+}
+
+.app-shell {
+  position: relative;
+  min-height: 100vh;
+  padding: 24px;
+  overflow: hidden;
+}
+
+.confetti-canvas {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  width: 100%;
+  height: 100%;
+  z-index: 20;
+}
+
+.hero-card,
+.shape-panel,
+.calculator-card,
+.challenge-card {
+  background: rgba(255, 255, 255, 0.86);
+  border: 4px solid rgba(23, 50, 77, 0.12);
+  border-radius: 28px;
+  box-shadow: 0 18px 45px rgba(23, 50, 77, 0.12);
+  backdrop-filter: blur(8px);
+}
+
+.hero-card {
+  display: grid;
+  grid-template-columns: 1.8fr 1fr;
+  gap: 20px;
+  padding: 28px;
+  align-items: center;
+}
+
+.eyebrow,
+.section-kicker {
+  margin: 0 0 8px;
+  font-size: 0.85rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #ff7a59;
+  font-weight: 700;
+}
+
+h1,
+h2,
+h3,
+p {
+  margin: 0;
+}
+
+h1 {
+  font-size: clamp(2rem, 4vw, 3.6rem);
+  line-height: 1.05;
+}
+
+h2 {
+  font-size: 1.75rem;
+}
+
+h3 {
+  font-size: 1rem;
+}
+
+.hero-copy,
+.panel-copy,
+.challenge-copy {
+  color: #44607d;
+}
+
+.hero-copy {
+  margin-top: 12px;
+  max-width: 60ch;
+  font-size: 1.05rem;
+}
+
+.hero-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: flex-end;
+}
+
+.hero-badges span,
+.challenge-values span {
+  padding: 10px 14px;
+  border-radius: 999px;
+  background: #ffffff;
+  border: 3px solid rgba(23, 50, 77, 0.12);
+  font-weight: 700;
+}
+
+.figure-selector {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin: 24px 0;
+}
+
+.figure-pill {
+  border: 0;
+  padding: 12px 18px;
+  border-radius: 999px;
+  background: var(--pill-accent);
+  color: #17324d;
+  font-weight: 800;
+  cursor: pointer;
+  transition: transform 160ms ease, box-shadow 160ms ease;
+  box-shadow: 0 10px 25px rgba(23, 50, 77, 0.12);
+}
+
+.figure-pill:hover,
+.figure-pill.is-active {
+  transform: translateY(-2px) scale(1.02);
+}
+
+.figure-pill.is-active {
+  background: var(--pill-color);
+  color: #ffffff;
+}
+
+.content-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(340px, 0.9fr);
+  gap: 24px;
+}
+
+.shape-panel,
+.calculator-card,
+.challenge-card {
+  padding: 24px;
+}
+
+.shape-panel {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(255, 255, 255, 0.84)),
+    linear-gradient(140deg, var(--shape-accent), transparent 60%);
+}
+
+.panel-heading {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.shape-stage {
+  margin-top: 20px;
+  border-radius: 24px;
+  background:
+    radial-gradient(circle at center, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.78)),
+    repeating-linear-gradient(
+      0deg,
+      rgba(23, 50, 77, 0.04),
+      rgba(23, 50, 77, 0.04) 18px,
+      transparent 18px,
+      transparent 36px
+    );
+  border: 4px dashed rgba(23, 50, 77, 0.12);
+  min-height: 360px;
+  display: grid;
+  place-items: center;
+  margin-bottom: 20px;
+}
+
+.shape-svg {
+  width: min(100%, 420px);
+  height: auto;
+}
+
+.shape-fill {
+  fill: var(--shape-color);
+  stroke: #17324d;
+  stroke-width: 8;
+}
+
+.shape-center {
+  fill: #17324d;
+}
+
+.measure-line {
+  stroke: #17324d;
+  stroke-width: 4;
+  stroke-linecap: round;
+}
+
+.dashed-line {
+  stroke-dasharray: 10 8;
+}
+
+.measure-text {
+  fill: #17324d;
+  font-size: 18px;
+  font-weight: 800;
+  text-anchor: middle;
+}
+
+.vertical-text {
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+}
+
+.formula-grid,
+.result-grid,
+.challenge-inputs {
+  display: grid;
+  gap: 16px;
+}
+
+.formula-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.formula-grid article,
+.result-card {
+  border-radius: 22px;
+  border: 3px solid rgba(23, 50, 77, 0.12);
+  background: #ffffff;
+  padding: 16px;
+}
+
+.controls-panel {
+  display: grid;
+  gap: 24px;
+}
+
+.input-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  margin: 20px 0;
+}
+
+.field-card {
+  display: grid;
+  gap: 8px;
+  padding: 14px;
+  border-radius: 20px;
+  background: #fffdfb;
+  border: 3px solid rgba(23, 50, 77, 0.12);
+  font-weight: 700;
+}
+
+.field-card input {
+  border: 3px solid rgba(23, 50, 77, 0.16);
+  border-radius: 14px;
+  padding: 12px 14px;
+  background: #ffffff;
+  color: #17324d;
+}
+
+.field-card input:focus {
+  outline: 3px solid rgba(255, 122, 89, 0.25);
+  border-color: #ff7a59;
+}
+
+.result-grid,
+.challenge-inputs {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.result-card strong {
+  display: block;
+  margin-top: 8px;
+  font-size: 2rem;
+  color: #ff7a59;
+}
+
+.secondary-button,
+.primary-button {
+  border: 0;
+  border-radius: 999px;
+  padding: 12px 18px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.secondary-button {
+  background: #e9f5ff;
+  color: #17324d;
+}
+
+.primary-button {
+  background: #ff7a59;
+  color: #ffffff;
+  box-shadow: 0 12px 25px rgba(255, 122, 89, 0.32);
+}
+
+.challenge-values {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 18px 0;
+}
+
+.challenge-actions {
+  display: flex;
+  justify-content: flex-start;
+  margin-top: 16px;
+}
+
+.challenge-message {
+  margin-top: 16px;
+  padding: 14px 16px;
+  border-radius: 18px;
+  font-weight: 700;
+}
+
+.success-message {
+  background: #ddf8d7;
+  color: #1b5e20;
+  border: 3px solid #8bc34a;
+}
+
+.error-message {
+  background: #ffe3e0;
+  color: #b3261e;
+  border: 3px solid #ff7a59;
+}
+
+@media (max-width: 1080px) {
+  .hero-card,
+  .content-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .hero-badges {
+    justify-content: flex-start;
+  }
+}
+
+@media (max-width: 720px) {
+  .app-shell {
+    padding: 16px;
+  }
+
+  .panel-heading,
+  .challenge-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .input-grid,
+  .formula-grid,
+  .result-grid,
+  .challenge-inputs {
+    grid-template-columns: 1fr;
+  }
+
+  .shape-stage {
+    min-height: 300px;
+  }
+}
