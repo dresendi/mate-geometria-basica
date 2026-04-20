@@ -450,7 +450,7 @@ function App() {
       <header className="hero-card">
         <div>
           <p className="eyebrow">Matematicas para 5o y 6o de primaria</p>
-          <h1>Calculadora interactiva de area y perimetro</h1>
+          <h1>Calculadora interactiva de area y perimetro para Elenukis</h1>
           <p className="hero-copy">
             Explora una figura a la vez, cambia sus medidas y descubre sus formulas con una
             experiencia colorida pensada para niñas y niños.
