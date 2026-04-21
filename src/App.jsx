@@ -40,6 +40,12 @@ const figures = [
       perimeter: "P = 4 × lado",
       area: "A = lado × lado"
     },
+    substitution(values, results) {
+      return {
+        perimeter: `P = 4 × ${values.side} = ${formatNumber(results.perimeter)}`,
+        area: `A = ${values.side} × ${values.side} = ${formatNumber(results.area)}`
+      };
+    },
     calculate(values) {
       const side = values.side;
       return {
@@ -73,6 +79,12 @@ const figures = [
       perimeter: "P = 2 × (base + altura)",
       area: "A = base × altura"
     },
+    substitution(values, results) {
+      return {
+        perimeter: `P = 2 × (${values.base} + ${values.height}) = ${formatNumber(results.perimeter)}`,
+        area: `A = ${values.base} × ${values.height} = ${formatNumber(results.area)}`
+      };
+    },
     calculate(values) {
       const base = values.base;
       const height = values.height;
@@ -104,6 +116,12 @@ const figures = [
     formulas: {
       perimeter: "P = 2 × pi × radio",
       area: "A = pi × radio × radio"
+    },
+    substitution(values, results) {
+      return {
+        perimeter: `P = 2 × pi × ${values.radius} = ${formatNumber(results.perimeter)}`,
+        area: `A = pi × ${values.radius} × ${values.radius} = ${formatNumber(results.area)}`
+      };
     },
     calculate(values) {
       const radius = values.radius;
@@ -138,6 +156,12 @@ const figures = [
     formulas: {
       perimeter: "P = 4 × lado",
       area: "A = (D mayor × D menor) / 2"
+    },
+    substitution(values, results) {
+      return {
+        perimeter: `P = 4 × ${values.side} = ${formatNumber(results.perimeter)}`,
+        area: `A = (${values.majorDiagonal} × ${values.minorDiagonal}) / 2 = ${formatNumber(results.area)}`
+      };
     },
     calculate(values) {
       return {
@@ -176,6 +200,12 @@ const figures = [
       perimeter: "P = B mayor + B menor + lado izq. + lado der.",
       area: "A = ((B mayor + B menor) × altura) / 2"
     },
+    substitution(values, results) {
+      return {
+        perimeter: `P = ${values.baseMajor} + ${values.baseMinor} + ${values.leftSide} + ${values.rightSide} = ${formatNumber(results.perimeter)}`,
+        area: `A = ((${values.baseMajor} + ${values.baseMinor}) × ${values.height}) / 2 = ${formatNumber(results.area)}`
+      };
+    },
     calculate(values) {
       return {
         perimeter:
@@ -213,6 +243,12 @@ const figures = [
     formulas: {
       perimeter: "P = 5 × lado",
       area: "A = (perimetro × apotema) / 2"
+    },
+    substitution(values, results) {
+      return {
+        perimeter: `P = 5 × ${values.side} = ${formatNumber(results.perimeter)}`,
+        area: `A = (${formatNumber(results.perimeter)} × ${values.apothem}) / 2 = ${formatNumber(results.area)}`
+      };
     },
     calculate(values) {
       const perimeter = 5 * values.side;
@@ -352,6 +388,7 @@ function App() {
 
   const activeValues = figureValues[activeFigureId];
   const activeResults = activeFigure.calculate(activeValues);
+  const activeSubstitution = activeFigure.substitution(activeValues, activeResults);
   const activeChallenge = challengeState[activeFigureId];
   const challengeResults = activeFigure.calculate(activeChallenge.values);
   const expectsRoundedAnswers = activeFigure.id === "circle" || activeFigure.id === "trapezoid";
@@ -541,6 +578,16 @@ function App() {
                 <h3>Area</h3>
                 <strong>{formatNumber(activeResults.area)}</strong>
               </article>
+            </div>
+
+            <div className="substitution-card">
+              <h3>Sustitucion paso a paso</h3>
+              <p>
+                <span>Perimetro:</span> {activeSubstitution.perimeter}
+              </p>
+              <p>
+                <span>Area:</span> {activeSubstitution.area}
+              </p>
             </div>
           </div>
 
