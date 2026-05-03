@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 
 const sectionItems = [
-  { id: "home", label: "Temario Bloque III" },
+  { id: "home", label: "Temario Bloque III para Elenukis" },
   { id: "geometry", label: "Perimetros y areas" },
   { id: "percentages", label: "Porcentajes" },
   { id: "rule-of-three", label: "Regla de tres" },
@@ -62,6 +62,23 @@ const moduleCards = [
   }
 ];
 
+const syllabusStorageKey = "block-iii-syllabus-checks";
+const gamificationStorageKey = "block-iii-gamification";
+const isElenaMode = import.meta.env.ELENA === "true";
+
+const celebrationCharacters = [
+  { name: "Astro", image: "/astro.webp" },
+  { name: "Bobette", image: "/bobette.webp" },
+  { name: "Brightney", image: "/brightney.webp" },
+  { name: "Brusha", image: "/brusha.webp" },
+  { name: "Connie", image: "/connie.webp" },
+  { name: "Pebble", image: "/pebble.webp" },
+  { name: "Shelly", image: "/shelly.webp" },
+  { name: "Dandy", image: "/dandy.webp" },
+  { name: "Gourdy", image: "/gourdy.webp" },
+  { name: "Bassie", image: "/bassie.webp" }
+];
+
 const clampInteger = (value, minimum, maximum) => {
   if (value === "") {
     return "";
@@ -92,6 +109,28 @@ const clampDecimal = (value, minimum, maximum) => {
 
 const randomInt = (minimum, maximum) =>
   Math.floor(Math.random() * (maximum - minimum + 1)) + minimum;
+
+const ensureRectangleValues = (values) => {
+  const safeHeight = Math.max(1, values.height);
+  const safeBase = Math.max(safeHeight + 1, values.base);
+
+  return {
+    ...values,
+    base: Math.min(20, safeBase),
+    height: Math.min(19, safeHeight)
+  };
+};
+
+const ensureTrapezoidValues = (values) => {
+  const safeMinor = Math.max(1, values.baseMinor);
+  const safeMajor = Math.max(safeMinor + 1, values.baseMajor);
+
+  return {
+    ...values,
+    baseMinor: Math.min(19, safeMinor),
+    baseMajor: Math.min(20, safeMajor)
+  };
+};
 
 const roundTo = (value, digits = 2) => {
   const factor = 10 ** digits;
@@ -195,6 +234,35 @@ function ConfettiCanvas({ burstToken, activeColor }) {
   return <canvas ref={canvasRef} className="confetti-canvas" aria-hidden="true" />;
 }
 
+function CelebrationOverlay({ active, imageSrc }) {
+  if (!imageSrc) {
+    return null;
+  }
+
+  return (
+    <div className={`celebration-overlay ${active ? "is-active" : ""}`} aria-hidden={!active}>
+      <img src={imageSrc} alt="" className="celebration-character" />
+    </div>
+  );
+}
+
+function UnlockToast({ item }) {
+  if (!item) {
+    return null;
+  }
+
+  return (
+    <div className="unlock-toast" role="status" aria-live="polite">
+      <img src={item.image} alt="" className="unlock-toast-image" />
+      <div>
+        <p className="eyebrow">Nuevo desbloqueo</p>
+        <h3>Has desbloqueado a {item.name}</h3>
+        <p>Sigue resolviendo retos para conocer al siguiente personaje.</p>
+      </div>
+    </div>
+  );
+}
+
 const geometryFigures = [
   {
     id: "square",
@@ -244,7 +312,8 @@ const geometryFigures = [
       perimeter: "P = 2 x (base + altura)",
       area: "A = base x altura"
     },
-    createChallenge: () => ({ base: randomInt(1, 20), height: randomInt(1, 20) }),
+    createChallenge: () =>
+      ensureRectangleValues({ base: randomInt(1, 20), height: randomInt(1, 19) }),
     calculate(values) {
       return {
         perimeter: 2 * (values.base + values.height),
@@ -305,6 +374,55 @@ const geometryFigures = [
     }
   },
   {
+    id: "triangle",
+    name: "Triangulo",
+    color: "#2d9cdb",
+    accent: "#c7edff",
+    explanation:
+      "El area del triangulo usa base por altura entre 2. Para el perimetro sumamos sus tres lados.",
+    fields: [
+      { key: "base", label: "Base", shortLabel: "base" },
+      { key: "height", label: "Altura", shortLabel: "altura" },
+      { key: "leftSide", label: "Lado izquierdo", shortLabel: "lado izq." },
+      { key: "rightSide", label: "Lado derecho", shortLabel: "lado der." }
+    ],
+    formulas: {
+      perimeter: "P = base + lado izq. + lado der.",
+      area: "A = (base x altura) / 2"
+    },
+    createChallenge: () => ({
+      base: randomInt(1, 20),
+      height: randomInt(1, 20),
+      leftSide: randomInt(1, 20),
+      rightSide: randomInt(1, 20)
+    }),
+    calculate(values) {
+      return {
+        perimeter: values.base + values.leftSide + values.rightSide,
+        area: (values.base * values.height) / 2
+      };
+    },
+    substitution(values, results) {
+      return {
+        perimeter: `P = ${values.base} + ${values.leftSide} + ${values.rightSide} = ${formatNumber(results.perimeter)}`,
+        area: `A = (${values.base} x ${values.height}) / 2 = ${formatNumber(results.area)}`
+      };
+    },
+    renderFigure(values) {
+      return (
+        <svg viewBox="0 0 420 320" className="shape-svg" role="img" aria-label="Triangulo">
+          <polygon points="210,48 105,248 315,248" className="shape-fill" />
+          <line x1="210" y1="48" x2="210" y2="248" className="measure-line dashed-line" />
+          <line x1="105" y1="266" x2="315" y2="266" className="measure-line" />
+          <text x="210" y="290" className="measure-text">base = {values.base}</text>
+          <text x="224" y="150" className="measure-text vertical-text">altura = {values.height}</text>
+          <text x="124" y="142" className="measure-text">lado = {values.leftSide}</text>
+          <text x="296" y="142" className="measure-text">lado = {values.rightSide}</text>
+        </svg>
+      );
+    }
+  },
+  {
     id: "rhombus",
     name: "Rombo",
     color: "#ff4f81",
@@ -342,9 +460,9 @@ const geometryFigures = [
           <polygon points="210,40 330,160 210,280 90,160" className="shape-fill" />
           <line x1="90" y1="160" x2="330" y2="160" className="measure-line" />
           <line x1="210" y1="40" x2="210" y2="280" className="measure-line" />
-          <text x="210" y="146" className="measure-text">D mayor = {values.majorDiagonal}</text>
-          <text x="226" y="168" className="measure-text vertical-text">D menor = {values.minorDiagonal}</text>
-          <text x="122" y="112" className="measure-text">lado = {values.side}</text>
+          <text x="210" y="146" className="measure-text bright-diagonal-text">D mayor = {values.majorDiagonal}</text>
+          <text x="226" y="168" className="measure-text vertical-text bright-diagonal-text">D menor = {values.minorDiagonal}</text>
+          <text x="122" y="112" className="measure-text bright-side-text">lado = {values.side}</text>
         </svg>
       );
     }
@@ -366,13 +484,14 @@ const geometryFigures = [
       perimeter: "P = B mayor + B menor + lado izq. + lado der.",
       area: "A = ((B mayor + B menor) x altura) / 2"
     },
-    createChallenge: () => ({
-      baseMajor: randomInt(1, 20),
-      baseMinor: randomInt(1, 20),
-      leftSide: randomInt(1, 20),
-      rightSide: randomInt(1, 20),
-      height: randomInt(1, 20)
-    }),
+    createChallenge: () =>
+      ensureTrapezoidValues({
+        baseMajor: randomInt(1, 20),
+        baseMinor: randomInt(1, 19),
+        leftSide: randomInt(1, 20),
+        rightSide: randomInt(1, 20),
+        height: randomInt(1, 20)
+      }),
     calculate(values) {
       return {
         perimeter: values.baseMajor + values.baseMinor + values.leftSide + values.rightSide,
@@ -436,7 +555,7 @@ const geometryFigures = [
           <circle cx="210" cy="165" r="4" className="shape-center" />
           <line x1="210" y1="165" x2="210" y2="272" className="measure-line" />
           <line x1="132" y1="272" x2="288" y2="272" className="measure-line" />
-          <text x="210" y="228" className="measure-text vertical-text">apotema = {values.apothem}</text>
+          <text x="210" y="228" className="measure-text vertical-text bright-apothem-text">apotema = {values.apothem}</text>
           <text x="210" y="296" className="measure-text">lado = {values.side}</text>
         </svg>
       );
@@ -445,10 +564,18 @@ const geometryFigures = [
 ];
 
 const regularInitialValues = geometryFigures.reduce((accumulator, figure) => {
-  accumulator[figure.id] = figure.fields.reduce((fieldAccumulator, field) => {
-    fieldAccumulator[field.key] = 6;
-    return fieldAccumulator;
-  }, {});
+  const defaultValuesByFigure = {
+    rectangle: { base: 10, height: 6 },
+    triangle: { base: 8, height: 10, leftSide: 9, rightSide: 9 },
+    trapezoid: { baseMajor: 12, baseMinor: 7, leftSide: 6, rightSide: 6, height: 5 }
+  };
+
+  accumulator[figure.id] =
+    defaultValuesByFigure[figure.id] ??
+    figure.fields.reduce((fieldAccumulator, field) => {
+      fieldAccumulator[field.key] = 6;
+      return fieldAccumulator;
+    }, {});
   return accumulator;
 }, {});
 
@@ -481,6 +608,18 @@ const irregularChallengeFactory = () => ({
   answerPerimeter: "",
   status: "idle"
 });
+
+const applyFigureConstraints = (figureId, values) => {
+  if (figureId === "rectangle") {
+    return ensureRectangleValues(values);
+  }
+
+  if (figureId === "trapezoid") {
+    return ensureTrapezoidValues(values);
+  }
+
+  return values;
+};
 
 const capacityUnits = [
   { key: "kl", label: "Kilolitro (kl)", factor: 1000 },
@@ -574,20 +713,13 @@ const createRandomDecimal = () => roundTo(Math.random() * 9 + Math.random() * 90
 const decimalChallengeFactory = () => ({
   list: Array.from({ length: 5 }, () => createRandomDecimal()),
   direction: Math.random() > 0.5 ? "ascending" : "descending",
-  answer: "",
+  userOrder: [],
+  draggingIndex: null,
   status: "idle"
 });
 
 const compareValues = (leftValue, rightValue, direction) =>
   direction === "ascending" ? leftValue - rightValue : rightValue - leftValue;
-
-const normalizeDecimalSequence = (value) =>
-  value
-    .split(",")
-    .map((item) => item.trim())
-    .filter(Boolean)
-    .map((item) => formatFixed(Number(item.replace(",", "."))))
-    .join(", ");
 
 const toMayanDigits = (value) => {
   const digits = [];
@@ -651,23 +783,10 @@ function SectionHeader({ eyebrow, title, description }) {
   );
 }
 
-function HomeSection({ onNavigate }) {
+function HomeSection({ onNavigate, checkedItems, onToggleItem }) {
   return (
     <section className="page-section">
-      <header className="hero-card">
-        <div>
-          <p className="eyebrow">Parcial 3</p>
-          <h1>Temario Bloque III</h1>
-          <p className="hero-copy">
-            Esta portada resume el temario del PDF compartido y te da acceso directo a las
-            experiencias interactivas que ya construimos para estudiar.
-          </p>
-        </div>
-        <div className="hero-note">
-          <strong>Fuente:</strong>
-          <p>TEMARIO DEL EXAMEN PARCIAL DE MATEMATICAS BLOQUE III</p>
-        </div>
-      </header>
+
 
       <div className="two-column-grid">
         <article className="panel-card">
@@ -677,8 +796,17 @@ function HomeSection({ onNavigate }) {
             description="El listado se muestra con el mismo sentido del PDF para que la portada sea una guia de estudio."
           />
           <ol className="syllabus-list">
-            {syllabusItems.map((item) => (
-              <li key={item}>{item}</li>
+            {syllabusItems.map((item, index) => (
+              <li key={item} className="syllabus-item">
+                <label className="syllabus-checkbox">
+                  <input
+                    type="checkbox"
+                    checked={checkedItems[index]}
+                    onChange={() => onToggleItem(index)}
+                  />
+                  <span>{item}</span>
+                </label>
+              </li>
             ))}
           </ol>
         </article>
@@ -708,7 +836,7 @@ function HomeSection({ onNavigate }) {
   );
 }
 
-function GeometrySection({ onCelebrate }) {
+function GeometrySection({ onCelebrate, isCelebrating }) {
   const [activeFigureId, setActiveFigureId] = useState(geometryFigures[0].id);
   const [figureValues, setFigureValues] = useState(regularInitialValues);
   const [challengeState, setChallengeState] = useState(regularChallengeValues);
@@ -740,10 +868,18 @@ function GeometrySection({ onCelebrate }) {
   const updateFigureValue = (fieldKey, value) => {
     setFigureValues((currentValues) => ({
       ...currentValues,
-      [activeFigureId]: {
+      [activeFigureId]: applyFigureConstraints(activeFigureId, {
         ...currentValues[activeFigureId],
-        [fieldKey]: clampInteger(value, 1, 20)
-      }
+        [fieldKey]: clampInteger(
+          value,
+          1,
+          activeFigureId === "rectangle" && fieldKey === "height"
+            ? 19
+            : activeFigureId === "trapezoid" && fieldKey === "baseMinor"
+              ? 19
+              : 20
+        )
+      })
     }));
   };
 
@@ -959,7 +1095,12 @@ function GeometrySection({ onCelebrate }) {
                 />
               </label>
             </div>
-            <button type="button" className="primary-button" onClick={validateRegularChallenge}>
+            <button
+              type="button"
+              className="primary-button"
+              onClick={validateRegularChallenge}
+              disabled={isCelebrating}
+            >
               Revisar respuesta
             </button>
             {activeChallenge.status === "success" && (
@@ -1070,7 +1211,12 @@ function GeometrySection({ onCelebrate }) {
                 onChange={(event) => updateIrregularChallengeAnswer(event.target.value)}
               />
             </label>
-            <button type="button" className="primary-button" onClick={validateIrregularChallenge}>
+            <button
+              type="button"
+              className="primary-button"
+              onClick={validateIrregularChallenge}
+              disabled={isCelebrating}
+            >
               Revisar respuesta
             </button>
             {irregularChallenge.status === "success" && (
@@ -1090,7 +1236,7 @@ function GeometrySection({ onCelebrate }) {
   );
 }
 
-function PercentagesSection({ onCelebrate }) {
+function PercentagesSection({ onCelebrate, isCelebrating }) {
   const [totalValue, setTotalValue] = useState(800);
   const [percentValue, setPercentValue] = useState(50);
   const [challenge, setChallenge] = useState(percentageChallengeFactory);
@@ -1201,7 +1347,12 @@ function PercentagesSection({ onCelebrate }) {
                 }
               />
             </label>
-            <button type="button" className="primary-button" onClick={validateChallenge}>
+            <button
+              type="button"
+              className="primary-button"
+              onClick={validateChallenge}
+              disabled={isCelebrating}
+            >
               Revisar respuesta
             </button>
             {challenge.status === "success" && (
@@ -1221,7 +1372,7 @@ function PercentagesSection({ onCelebrate }) {
   );
 }
 
-function RuleOfThreeSection({ onCelebrate }) {
+function RuleOfThreeSection({ onCelebrate, isCelebrating }) {
   const [baseTotal, setBaseTotal] = useState(800);
   const [basePercent, setBasePercent] = useState(50);
   const [challenge, setChallenge] = useState(ruleOfThreeChallengeFactory);
@@ -1347,7 +1498,12 @@ function RuleOfThreeSection({ onCelebrate }) {
                 }
               />
             </label>
-            <button type="button" className="primary-button" onClick={validateChallenge}>
+            <button
+              type="button"
+              className="primary-button"
+              onClick={validateChallenge}
+              disabled={isCelebrating}
+            >
               Revisar respuesta
             </button>
             {challenge.status === "success" && (
@@ -1367,7 +1523,7 @@ function RuleOfThreeSection({ onCelebrate }) {
   );
 }
 
-function MayanSection({ onCelebrate }) {
+function MayanSection({ onCelebrate, isCelebrating }) {
   const [decimalValue, setDecimalValue] = useState(37);
   const [challenge, setChallenge] = useState(mayanChallengeFactory);
 
@@ -1474,7 +1630,12 @@ function MayanSection({ onCelebrate }) {
                 }
               />
             </label>
-            <button type="button" className="primary-button" onClick={validateChallenge}>
+            <button
+              type="button"
+              className="primary-button"
+              onClick={validateChallenge}
+              disabled={isCelebrating}
+            >
               Revisar respuesta
             </button>
             {challenge.status === "success" && (
@@ -1494,7 +1655,7 @@ function MayanSection({ onCelebrate }) {
   );
 }
 
-function MeasuresSection({ onCelebrate }) {
+function MeasuresSection({ onCelebrate, isCelebrating }) {
   const [familyKey, setFamilyKey] = useState("capacity");
   const [inputValue, setInputValue] = useState(8);
   const [fromKey, setFromKey] = useState("l");
@@ -1641,7 +1802,12 @@ function MeasuresSection({ onCelebrate }) {
                 }
               />
             </label>
-            <button type="button" className="primary-button" onClick={validateChallenge}>
+            <button
+              type="button"
+              className="primary-button"
+              onClick={validateChallenge}
+              disabled={isCelebrating}
+            >
               Revisar respuesta
             </button>
             {challenge.status === "success" && (
@@ -1661,7 +1827,7 @@ function MeasuresSection({ onCelebrate }) {
   );
 }
 
-function DecimalsSection({ onCelebrate }) {
+function DecimalsSection({ onCelebrate, isCelebrating }) {
   const [practiceList, setPracticeList] = useState([
     4.03,
     4.3,
@@ -1676,16 +1842,47 @@ function DecimalsSection({ onCelebrate }) {
     compareValues(left, right, practiceDirection)
   );
   const paddedPractice = practiceList.map((value) => formatFixed(value));
+  const challengeUserOrder =
+    challenge.userOrder.length > 0 ? challenge.userOrder : challenge.list;
   const challengeExpected = [...challenge.list]
     .sort((left, right) => compareValues(left, right, challenge.direction))
-    .map((value) => formatFixed(value))
-    .join(", ");
+    .map((value) => formatFixed(value));
+
+  useEffect(() => {
+    if (challenge.userOrder.length === 0 && challenge.list.length > 0) {
+      setChallenge((currentState) => ({
+        ...currentState,
+        userOrder: [...currentState.list]
+      }));
+    }
+  }, [challenge]);
+
+  const moveChallengeItem = (fromIndex, toIndex) => {
+    if (fromIndex === toIndex || fromIndex === null || toIndex === null) {
+      return;
+    }
+
+    setChallenge((currentState) => {
+      const nextOrder = [...currentState.userOrder];
+      const [movedItem] = nextOrder.splice(fromIndex, 1);
+      nextOrder.splice(toIndex, 0, movedItem);
+
+      return {
+        ...currentState,
+        userOrder: nextOrder,
+        draggingIndex: toIndex,
+        status: "idle"
+      };
+    });
+  };
 
   const validateChallenge = () => {
-    const success = normalizeDecimalSequence(challenge.answer) === challengeExpected;
+    const normalizedUserOrder = challengeUserOrder.map((value) => formatFixed(value));
+    const success = normalizedUserOrder.join(", ") === challengeExpected.join(", ");
 
     setChallenge((currentState) => ({
       ...currentState,
+      draggingIndex: null,
       status: success ? "success" : "error"
     }));
 
@@ -1767,32 +1964,59 @@ function DecimalsSection({ onCelebrate }) {
               <button
                 type="button"
                 className="secondary-button"
-                onClick={() => setChallenge(decimalChallengeFactory())}
+                onClick={() =>
+                  setChallenge({
+                    ...decimalChallengeFactory(),
+                    userOrder: []
+                  })
+                }
               >
                 Nuevo reto
               </button>
             </div>
-            <div className="number-strip">
-              {challenge.list.map((value, index) => (
-                <span key={`${value}-${index}`}>{formatFixed(value)}</span>
+            <div className="drag-help">
+              Arrastra las tarjetas para formar el orden
+              {" "}
+              {challenge.direction === "ascending" ? "ascendente" : "descendente"}.
+            </div>
+            <div className="number-strip drag-strip">
+              {challengeUserOrder.map((value, index) => (
+                <button
+                  key={`${value}-${index}`}
+                  type="button"
+                  className={`draggable-number ${challenge.draggingIndex === index ? "is-dragging" : ""}`}
+                  draggable
+                  onDragStart={() =>
+                    setChallenge((currentState) => ({
+                      ...currentState,
+                      draggingIndex: index,
+                      status: "idle"
+                    }))
+                  }
+                  onDragOver={(event) => {
+                    event.preventDefault();
+                  }}
+                  onDrop={(event) => {
+                    event.preventDefault();
+                    moveChallengeItem(challenge.draggingIndex, index);
+                  }}
+                  onDragEnd={() =>
+                    setChallenge((currentState) => ({
+                      ...currentState,
+                      draggingIndex: null
+                    }))
+                  }
+                >
+                  {formatFixed(value)}
+                </button>
               ))}
             </div>
-            <label className="field-card">
-              <span>Escribe el orden correcto</span>
-              <input
-                type="text"
-                value={challenge.answer}
-                onChange={(event) =>
-                  setChallenge((currentState) => ({
-                    ...currentState,
-                    answer: event.target.value,
-                    status: "idle"
-                  }))
-                }
-                placeholder="Ejemplo: 1.2300, 1.9000, 2.0001"
-              />
-            </label>
-            <button type="button" className="primary-button" onClick={validateChallenge}>
+            <button
+              type="button"
+              className="primary-button"
+              onClick={validateChallenge}
+              disabled={isCelebrating}
+            >
               Revisar respuesta
             </button>
             {challenge.status === "success" && (
@@ -1803,6 +2027,13 @@ function DecimalsSection({ onCelebrate }) {
                 No coincide aun. Compara primero unidades, luego decimos, centesimos, milesimos y diezmilesimos.
               </p>
             )}
+            <div className="substitution-card">
+              <h3>Tu orden actual</h3>
+              <p>
+                <span>Secuencia:</span>{" "}
+                {challengeUserOrder.map((value) => formatFixed(value)).join(", ")}
+              </p>
+            </div>
           </div>
         </article>
       </div>
@@ -1814,47 +2045,173 @@ function App() {
   const [activeSection, setActiveSection] = useState("home");
   const [burstToken, setBurstToken] = useState(0);
   const [confettiColor, setConfettiColor] = useState("#ff7a59");
-
-  const celebrate = (color) => {
-    setConfettiColor(color);
-    setBurstToken(Date.now());
-
-    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-
-    if (!AudioContextClass) {
-      return;
+  const [isCelebrating, setIsCelebrating] = useState(false);
+  const [celebrationImage, setCelebrationImage] = useState(null);
+  const [unlockToast, setUnlockToast] = useState(null);
+  const [checkedSyllabusItems, setCheckedSyllabusItems] = useState(() => {
+    if (typeof window === "undefined") {
+      return syllabusItems.map(() => false);
     }
 
-    const audioContext = new AudioContextClass();
-    const oscillator = audioContext.createOscillator();
-    const gainNode = audioContext.createGain();
+    try {
+      const savedValue = window.sessionStorage.getItem(syllabusStorageKey);
 
-    oscillator.type = "triangle";
-    oscillator.frequency.setValueAtTime(523.25, audioContext.currentTime);
-    oscillator.frequency.linearRampToValueAtTime(783.99, audioContext.currentTime + 0.15);
-    oscillator.frequency.linearRampToValueAtTime(1046.5, audioContext.currentTime + 0.3);
+      if (!savedValue) {
+        return syllabusItems.map(() => false);
+      }
 
-    gainNode.gain.setValueAtTime(0.001, audioContext.currentTime);
-    gainNode.gain.exponentialRampToValueAtTime(0.18, audioContext.currentTime + 0.02);
-    gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.55);
+      const parsedValue = JSON.parse(savedValue);
 
-    oscillator.connect(gainNode);
-    gainNode.connect(audioContext.destination);
-    oscillator.start();
-    oscillator.stop(audioContext.currentTime + 0.6);
-    oscillator.onended = () => {
-      audioContext.close().catch(() => undefined);
-    };
+      if (
+        Array.isArray(parsedValue) &&
+        parsedValue.length === syllabusItems.length &&
+        parsedValue.every((item) => typeof item === "boolean")
+      ) {
+        return parsedValue;
+      }
+    } catch {
+      return syllabusItems.map(() => false);
+    }
+
+    return syllabusItems.map(() => false);
+  });
+  const [gamificationProgress, setGamificationProgress] = useState(() => {
+    if (typeof window === "undefined") {
+      return { correctCount: 0, unlockedCount: 0 };
+    }
+
+    try {
+      const savedValue = window.sessionStorage.getItem(gamificationStorageKey);
+
+      if (!savedValue) {
+        return { correctCount: 0, unlockedCount: 0 };
+      }
+
+      const parsedValue = JSON.parse(savedValue);
+
+      if (
+        typeof parsedValue?.correctCount === "number" &&
+        typeof parsedValue?.unlockedCount === "number"
+      ) {
+        return {
+          correctCount: Math.max(0, parsedValue.correctCount),
+          unlockedCount: Math.max(0, Math.min(parsedValue.unlockedCount, celebrationCharacters.length))
+        };
+      }
+    } catch {
+      return { correctCount: 0, unlockedCount: 0 };
+    }
+
+    return { correctCount: 0, unlockedCount: 0 };
+  });
+  const audioRef = useRef(null);
+  const celebrationTimeoutRef = useRef(null);
+  const unlockToastTimeoutRef = useRef(null);
+  const gamificationRef = useRef(gamificationProgress);
+
+  useEffect(() => {
+    window.sessionStorage.setItem(
+      syllabusStorageKey,
+      JSON.stringify(checkedSyllabusItems)
+    );
+  }, [checkedSyllabusItems]);
+
+  useEffect(() => {
+    gamificationRef.current = gamificationProgress;
+    window.sessionStorage.setItem(
+      gamificationStorageKey,
+      JSON.stringify(gamificationProgress)
+    );
+  }, [gamificationProgress]);
+
+  const toggleSyllabusItem = (index) => {
+    setCheckedSyllabusItems((currentItems) =>
+      currentItems.map((item, currentIndex) =>
+        currentIndex === index ? !item : item
+      )
+    );
   };
+
+  const celebrate = (color) => {
+    if (celebrationTimeoutRef.current) {
+      window.clearTimeout(celebrationTimeoutRef.current);
+    }
+    if (unlockToastTimeoutRef.current) {
+      window.clearTimeout(unlockToastTimeoutRef.current);
+    }
+
+    const currentProgress = gamificationRef.current;
+    const nextCorrectCount = currentProgress.correctCount + 1;
+    const previousUnlockedCount = currentProgress.unlockedCount;
+    const visibleCharacterIndex = isElenaMode
+      ? Math.min(
+          celebrationCharacters.length - 1,
+          Math.floor((nextCorrectCount - 1) / 2) - 1
+        )
+      : -1;
+    const shouldUnlockNextCharacter =
+      isElenaMode &&
+      nextCorrectCount % 2 === 0 &&
+      previousUnlockedCount < celebrationCharacters.length;
+    const nextUnlockedCount = shouldUnlockNextCharacter
+      ? previousUnlockedCount + 1
+      : previousUnlockedCount;
+
+    setConfettiColor(color);
+    setBurstToken(Date.now());
+    setIsCelebrating(true);
+    setCelebrationImage(
+      visibleCharacterIndex >= 0 ? celebrationCharacters[visibleCharacterIndex].image : null
+    );
+    setGamificationProgress({
+      correctCount: nextCorrectCount,
+      unlockedCount: nextUnlockedCount
+    });
+
+    if (shouldUnlockNextCharacter) {
+      const unlockedCharacter = celebrationCharacters[previousUnlockedCount];
+      setUnlockToast(unlockedCharacter);
+      unlockToastTimeoutRef.current = window.setTimeout(() => {
+        setUnlockToast(null);
+        unlockToastTimeoutRef.current = null;
+      }, 3600);
+    }
+
+    if (audioRef.current) {
+      audioRef.current.currentTime = 0;
+      audioRef.current.play().catch(() => undefined);
+    }
+
+    celebrationTimeoutRef.current = window.setTimeout(() => {
+      setIsCelebrating(false);
+      setCelebrationImage(null);
+      celebrationTimeoutRef.current = null;
+    }, 2600);
+  };
+
+  useEffect(
+    () => () => {
+      if (celebrationTimeoutRef.current) {
+        window.clearTimeout(celebrationTimeoutRef.current);
+      }
+      if (unlockToastTimeoutRef.current) {
+        window.clearTimeout(unlockToastTimeoutRef.current);
+      }
+    },
+    []
+  );
 
   return (
     <div className="app-shell">
       <ConfettiCanvas burstToken={burstToken} activeColor={confettiColor} />
+      <CelebrationOverlay active={isCelebrating} imageSrc={celebrationImage} />
+      <UnlockToast item={unlockToast} />
+      <audio ref={audioRef} src="/bien-hecho.mp3" preload="auto" />
 
       <header className="topbar-card">
         <div>
-          <p className="eyebrow">Matematicas interactivas</p>
-          <h1>Temario Bloque III</h1>
+          <p className="eyebrow">Matematicas Rogers Hall 5°</p>
+          <h1>Temario Bloque III para Elenukis</h1>
         </div>
         <nav className="top-nav" aria-label="Secciones del temario">
           {sectionItems.map((section) => (
@@ -1870,13 +2227,31 @@ function App() {
         </nav>
       </header>
 
-      {activeSection === "home" && <HomeSection onNavigate={setActiveSection} />}
-      {activeSection === "geometry" && <GeometrySection onCelebrate={celebrate} />}
-      {activeSection === "percentages" && <PercentagesSection onCelebrate={celebrate} />}
-      {activeSection === "rule-of-three" && <RuleOfThreeSection onCelebrate={celebrate} />}
-      {activeSection === "mayan" && <MayanSection onCelebrate={celebrate} />}
-      {activeSection === "measures" && <MeasuresSection onCelebrate={celebrate} />}
-      {activeSection === "decimals" && <DecimalsSection onCelebrate={celebrate} />}
+      {activeSection === "home" && (
+        <HomeSection
+          onNavigate={setActiveSection}
+          checkedItems={checkedSyllabusItems}
+          onToggleItem={toggleSyllabusItem}
+        />
+      )}
+      {activeSection === "geometry" && (
+        <GeometrySection onCelebrate={celebrate} isCelebrating={isCelebrating} />
+      )}
+      {activeSection === "percentages" && (
+        <PercentagesSection onCelebrate={celebrate} isCelebrating={isCelebrating} />
+      )}
+      {activeSection === "rule-of-three" && (
+        <RuleOfThreeSection onCelebrate={celebrate} isCelebrating={isCelebrating} />
+      )}
+      {activeSection === "mayan" && (
+        <MayanSection onCelebrate={celebrate} isCelebrating={isCelebrating} />
+      )}
+      {activeSection === "measures" && (
+        <MeasuresSection onCelebrate={celebrate} isCelebrating={isCelebrating} />
+      )}
+      {activeSection === "decimals" && (
+        <DecimalsSection onCelebrate={celebrate} isCelebrating={isCelebrating} />
+      )}
     </div>
   );
 }
