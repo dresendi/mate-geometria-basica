@@ -301,6 +301,14 @@ const getReviewButtonState = (status, isCelebrating) => ({
       : ""
 });
 
+const getChallengeLockState = (status, isCelebrating) => ({
+  disabled: isCelebrating || status === "success",
+  title:
+    status === "success"
+      ? "Debes hacer click en Nuevo reto para seguir anotando puntos."
+      : ""
+});
+
 function UnlockToast({ item }) {
   if (!item) {
     return null;
@@ -730,7 +738,7 @@ const percentageChallengeFactory = () => ({
 });
 
 const ruleOfThreeChallengeFactory = () => ({
-  total: randomInt(120, 1600),
+  total: randomInt(100, 999),
   percent: [5, 10, 15, 20, 25, 30, 40, 50, 75][randomInt(0, 8)],
   answer: "",
   status: "idle"
@@ -1074,11 +1082,13 @@ const createSequenceTerms = (type, start, step) => {
 
 const createSequenceChallenge = () => {
   const type = Math.random() > 0.5 ? "integer" : "fraction";
+  const id = `sequence-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 
   if (type === "integer") {
     const start = randomInt(1, 25);
     const step = randomInt(1, 8);
     return {
+      id,
       type,
       start,
       step,
@@ -1093,6 +1103,7 @@ const createSequenceChallenge = () => {
   const step = { numerator: randomInt(1, denominator), denominator };
 
   return {
+    id,
     type,
     start,
     step,
@@ -1579,6 +1590,7 @@ function GeometrySection({ onCelebrate, isCelebrating }) {
                 <input
                   type="text"
                   value={activeChallenge.answerPerimeter}
+                  {...getChallengeLockState(activeChallenge.status, isCelebrating)}
                   onChange={(event) =>
                     updateRegularChallengeAnswer("answerPerimeter", event.target.value)
                   }
@@ -1589,6 +1601,7 @@ function GeometrySection({ onCelebrate, isCelebrating }) {
                 <input
                   type="text"
                   value={activeChallenge.answerArea}
+                  {...getChallengeLockState(activeChallenge.status, isCelebrating)}
                   onChange={(event) =>
                     updateRegularChallengeAnswer("answerArea", event.target.value)
                   }
@@ -1708,6 +1721,7 @@ function GeometrySection({ onCelebrate, isCelebrating }) {
               <input
                 type="text"
                 value={irregularChallenge.answerPerimeter}
+                {...getChallengeLockState(irregularChallenge.status, isCelebrating)}
                 onChange={(event) => updateIrregularChallengeAnswer(event.target.value)}
               />
             </label>
@@ -1838,6 +1852,7 @@ function PercentagesSection({ onCelebrate, isCelebrating }) {
               <input
                 type="text"
                 value={challenge.answer}
+                {...getChallengeLockState(challenge.status, isCelebrating)}
                 onChange={(event) =>
                   setChallenge((currentState) => ({
                     ...currentState,
@@ -1989,6 +2004,7 @@ function RuleOfThreeSection({ onCelebrate, isCelebrating }) {
               <input
                 type="text"
                 value={challenge.answer}
+                {...getChallengeLockState(challenge.status, isCelebrating)}
                 onChange={(event) =>
                   setChallenge((currentState) => ({
                     ...currentState,
@@ -2131,7 +2147,7 @@ function AlgorithmsSection({ onCelebrate, isCelebrating }) {
             </p>
           </div>
           <div className="info-box">
-            <h3>Por que es importante comprobar?</h3>
+            <h3>¿Por qué es importante comprobar?</h3>
             <p>Comprobar ayuda a detectar errores de signo, acomodo de decimales y cuentas mal hechas antes de entregar el ejercicio.</p>
           </div>
         </article>
@@ -2165,6 +2181,7 @@ function AlgorithmsSection({ onCelebrate, isCelebrating }) {
               <input
                 type="text"
                 value={challenge.answer}
+                {...getChallengeLockState(challenge.status, isCelebrating)}
                 onChange={(event) =>
                   setChallenge((currentState) => ({
                     ...currentState,
@@ -2283,6 +2300,7 @@ function NotationSection({ onCelebrate, isCelebrating }) {
               <input
                 type="text"
                 value={challenge.answer}
+                {...getChallengeLockState(challenge.status, isCelebrating)}
                 onChange={(event) =>
                   setChallenge((currentState) => ({
                     ...currentState,
@@ -2437,22 +2455,22 @@ function SequencesSection({ onCelebrate, isCelebrating }) {
                 Nuevo reto
               </button>
             </div>
-            <div className="number-strip">
+            <div className="number-strip" key={challenge.id}>
               {challengeTerms.slice(0, 4).map((term, index) => (
-                <span key={index}>
+                <span key={`${challenge.id}-${index}`}>
                   {challenge.type === "integer" ? term : <MathInline expression={fractionToLatex(term)} />}
                 </span>
               ))}
-              <span>?</span>
+              <span key={`${challenge.id}-question`}>?</span>
             </div>
             <div className="challenge-inputs">
               <label className="field-card">
                 <span>Siguiente termino</span>
-                <input type="text" value={challenge.answer} onChange={(event) => setChallenge((currentState) => ({ ...currentState, answer: event.target.value, status: "idle" }))} />
+                <input type="text" value={challenge.answer} {...getChallengeLockState(challenge.status, isCelebrating)} onChange={(event) => setChallenge((currentState) => ({ ...currentState, answer: event.target.value, status: "idle" }))} />
               </label>
               <label className="field-card">
                 <span>Constante</span>
-                <input type="text" value={challenge.constantAnswer} onChange={(event) => setChallenge((currentState) => ({ ...currentState, constantAnswer: event.target.value, status: "idle" }))} />
+                <input type="text" value={challenge.constantAnswer} {...getChallengeLockState(challenge.status, isCelebrating)} onChange={(event) => setChallenge((currentState) => ({ ...currentState, constantAnswer: event.target.value, status: "idle" }))} />
               </label>
             </div>
             <button
@@ -2624,7 +2642,7 @@ function FractionsSection({ onCelebrate, isCelebrating }) {
             </div>
             <label className="field-card">
               <span>Tu respuesta</span>
-              <input type="text" value={challenge.answer} onChange={(event) => setChallenge((currentState) => ({ ...currentState, answer: event.target.value, status: "idle" }))} placeholder="Ejemplo: 7/4" />
+              <input type="text" value={challenge.answer} {...getChallengeLockState(challenge.status, isCelebrating)} onChange={(event) => setChallenge((currentState) => ({ ...currentState, answer: event.target.value, status: "idle" }))} placeholder="Ejemplo: 7/4" />
             </label>
             <button
               type="button"
@@ -2751,6 +2769,7 @@ function MayanSection({ onCelebrate, isCelebrating }) {
                 min="0"
                 max="2219"
                 value={challenge.answer}
+                {...getChallengeLockState(challenge.status, isCelebrating)}
                 onChange={(event) =>
                   setChallenge((currentState) => ({
                     ...currentState,
@@ -2924,6 +2943,7 @@ function MeasuresSection({ onCelebrate, isCelebrating }) {
               <input
                 type="text"
                 value={challenge.answer}
+                {...getChallengeLockState(challenge.status, isCelebrating)}
                 onChange={(event) =>
                   setChallenge((currentState) => ({
                     ...currentState,
@@ -3305,7 +3325,7 @@ function App() {
       unlockToastTimeoutRef.current = window.setTimeout(() => {
         setUnlockToast(null);
         unlockToastTimeoutRef.current = null;
-      }, 3600);
+      }, 4000);
     }
 
     if (audioRef.current) {

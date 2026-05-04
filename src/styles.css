@@ -644,7 +644,7 @@ h3 {
   grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
 }
 
-.number-strip span {
+.number-strip > span {
   padding: 12px 14px;
   border-radius: 18px;
   background: #ffffff;
