@@ -1074,6 +1074,10 @@ const createSequenceTerms = (type, start, step) => {
     return Array.from({ length: 5 }, (_, index) => start + step * index);
   }
 
+  if (type === "decimal") {
+    return Array.from({ length: 5 }, (_, index) => roundTo(start + step * index, 4));
+  }
+
   return Array.from({ length: 5 }, (_, index) => ({
     numerator: start.numerator + step.numerator * index,
     denominator: start.denominator
@@ -1081,30 +1085,12 @@ const createSequenceTerms = (type, start, step) => {
 };
 
 const createSequenceChallenge = () => {
-  const type = Math.random() > 0.5 ? "integer" : "fraction";
   const id = `sequence-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
-
-  if (type === "integer") {
-    const start = randomInt(1, 25);
-    const step = randomInt(1, 8);
-    return {
-      id,
-      type,
-      start,
-      step,
-      answer: "",
-      constantAnswer: "",
-      status: "idle"
-    };
-  }
-
-  const denominator = [2, 3, 4, 5, 6, 8][randomInt(0, 5)];
-  const start = { numerator: randomInt(1, denominator * 2), denominator };
-  const step = { numerator: randomInt(1, denominator), denominator };
-
+  const start = roundTo(randomInt(1, 300) + Math.random(), 4);
+  const step = roundTo(0.1 + Math.random() * 25, 4);
   return {
     id,
-    type,
+    type: "decimal",
     start,
     step,
     answer: "",
@@ -2353,13 +2339,13 @@ function SequencesSection({ onCelebrate, isCelebrating }) {
 
   const validateChallenge = () => {
     const answerOk =
-      challenge.type === "integer"
-        ? Number(challenge.answer) === challengeExpectedNext
-        : areFractionsEqual(parseFractionString(challenge.answer), challengeExpectedNext);
+      challenge.type === "fraction"
+        ? areFractionsEqual(parseFractionString(challenge.answer), challengeExpectedNext)
+        : Math.abs(parseAnswer(challenge.answer) - challengeExpectedNext) <= 0.0001;
     const constantOk =
-      challenge.type === "integer"
-        ? Number(challenge.constantAnswer) === challengeExpectedConstant
-        : areFractionsEqual(parseFractionString(challenge.constantAnswer), challengeExpectedConstant);
+      challenge.type === "fraction"
+        ? areFractionsEqual(parseFractionString(challenge.constantAnswer), challengeExpectedConstant)
+        : Math.abs(parseAnswer(challenge.constantAnswer) - challengeExpectedConstant) <= 0.0001;
     const success = answerOk && constantOk;
 
     setChallenge((currentState) => ({
@@ -2444,11 +2430,11 @@ function SequencesSection({ onCelebrate, isCelebrating }) {
         </article>
 
         <article className="panel-card">
-          <SectionHeader eyebrow="Reto" title="Encuentra el siguiente termino" description="Descubre el siguiente termino y la constante de la sucesion." />
+          <SectionHeader eyebrow="Reto" title="Encuentra el siguiente termino" description="Descubre el siguiente termino y la constante de una sucesion con numeros decimales." />
           <div className="challenge-card">
             <div className="challenge-head">
               <div>
-                <p className="eyebrow">{challenge.type === "integer" ? "Enteros" : "Fracciones"}</p>
+                <p className="eyebrow">Decimales</p>
                 <h3>Que sigue?</h3>
               </div>
               <button type="button" className="secondary-button" onClick={() => setChallenge(createSequenceChallenge())}>
@@ -2458,7 +2444,7 @@ function SequencesSection({ onCelebrate, isCelebrating }) {
             <div className="number-strip" key={challenge.id}>
               {challengeTerms.slice(0, 4).map((term, index) => (
                 <span key={`${challenge.id}-${index}`}>
-                  {challenge.type === "integer" ? term : <MathInline expression={fractionToLatex(term)} />}
+                  {formatFixed(term)}
                 </span>
               ))}
               <span key={`${challenge.id}-question`}>?</span>
