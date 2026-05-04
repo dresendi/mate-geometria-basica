@@ -170,8 +170,19 @@ button {
   color: #16324f;
 }
 
+.nav-link.exam-nav-link {
+  background: linear-gradient(180deg, #ff9d42 0%, #ff7a59 100%);
+  color: #ffffff;
+  box-shadow: 0 12px 25px rgba(255, 122, 89, 0.28);
+}
+
 .nav-link.is-active {
   background: #16324f;
+  color: #ffffff;
+}
+
+.nav-link.exam-nav-link.is-active {
+  background: linear-gradient(180deg, #ff8a1d 0%, #f2545b 100%);
   color: #ffffff;
 }
 

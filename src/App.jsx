@@ -3788,7 +3788,7 @@ function App() {
             <button
               key={section.id}
               type="button"
-              className={`nav-link ${activeSection === section.id ? "is-active" : ""}`}
+              className={`nav-link ${section.id === "exam" ? "exam-nav-link" : ""} ${activeSection === section.id ? "is-active" : ""}`}
               onClick={() => setActiveSection(section.id)}
             >
               {section.label}
