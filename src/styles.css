@@ -34,7 +34,7 @@ button {
 
 .app-shell {
   min-height: 100vh;
-  padding: 20px;
+  padding: 28px;
   position: relative;
 }
 
@@ -236,6 +236,19 @@ button {
   font-size: 1.02rem;
 }
 
+.exam-visual {
+  display: grid;
+  place-items: center;
+  padding: 18px;
+  border-radius: 24px;
+  background: linear-gradient(180deg, rgba(255, 246, 220, 0.9) 0%, rgba(255, 255, 255, 0.95) 100%);
+  border: 3px solid rgba(22, 50, 79, 0.1);
+}
+
+.compact-stage {
+  min-height: 320px;
+}
+
 .score-banner {
   display: grid;
   gap: 6px;
@@ -258,9 +271,11 @@ button {
 }
 
 .print-answer-line {
-  padding-top: 8px;
+  margin-top: 18px;
+  padding: 12px 0 56px;
   border-top: 2px dashed rgba(22, 50, 79, 0.2);
-  min-height: 28px;
+  border-bottom: 2px dashed rgba(22, 50, 79, 0.2);
+  min-height: 88px;
 }
 
 .eyebrow {
@@ -811,7 +826,7 @@ h3 {
 
 @media (max-width: 760px) {
   .app-shell {
-    padding: 14px;
+    padding: 18px;
   }
 
   .input-grid,
@@ -860,7 +875,7 @@ h3 {
   }
 
   .app-shell {
-    padding: 0;
+    padding: 24px;
   }
 
   .topbar-card,
@@ -897,11 +912,21 @@ h3 {
 
   .exam-card {
     margin-bottom: 14px;
-    padding: 18px;
+    padding: 28px;
   }
 
   .print-answer-line {
-    margin-top: 20px;
-    padding-top: 12px;
+    margin-top: 24px;
+    padding: 16px 0 84px;
+    min-height: 130px;
+  }
+
+  .panel-card {
+    padding: 32px;
+  }
+
+  .exam-visual {
+    padding: 22px;
+    margin: 12px 0;
   }
 }

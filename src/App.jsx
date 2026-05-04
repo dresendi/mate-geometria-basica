@@ -1245,6 +1245,32 @@ const buildGeometryExamPrompt = (figure, measure, values) => {
   return `Calcula el ${measure === "area" ? "area" : "perimetro"} del ${figure.name.toLowerCase()} con ${fieldDetails}.${piHelp}`;
 };
 
+function ExamQuestionVisual({ question }) {
+  if (question.visualType === "geometry") {
+    const figure = geometryFigures.find((item) => item.id === question.figureId);
+
+    if (!figure) {
+      return null;
+    }
+
+    return (
+      <div className="exam-visual shape-stage compact-stage">
+        {figure.renderFigure(question.visualValues)}
+      </div>
+    );
+  }
+
+  if (question.visualType === "mayan") {
+    return (
+      <div className="exam-visual mayan-panel compact-panel">
+        <MayanDisplay value={question.visualValue} />
+      </div>
+    );
+  }
+
+  return null;
+}
+
 const createExamQuestion = (topicId, index) => {
   if (topicId === "algorithms") {
     const operationKeys = Object.keys(operationLabels);
@@ -1292,7 +1318,10 @@ const createExamQuestion = (topicId, index) => {
       answerType: "number",
       expected: results[measure],
       placeholder: "Escribe tu resultado",
-      tolerance: 0.01
+      tolerance: 0.01,
+      visualType: "geometry",
+      figureId: figure.id,
+      visualValues: values
     };
   }
 
@@ -1378,11 +1407,13 @@ const createExamQuestion = (topicId, index) => {
     return {
       id: `exam-${topicId}-${index}`,
       topic: "Numeros mayas",
-      prompt: `Convierte a decimal el numero maya con niveles ${toThreeLevelMayanDigits(challenge.value).join(" - ")}.`,
+      prompt: "Observa el numero maya y escribe su valor decimal.",
       answerType: "number",
       expected: challenge.value,
       placeholder: "Escribe el numero decimal",
-      tolerance: 0.0001
+      tolerance: 0.0001,
+      visualType: "mayan",
+      visualValue: challenge.value
     };
   }
 
@@ -3526,11 +3557,12 @@ function ExamSection({ onMegaCelebrate }) {
             <article key={question.id} className="exam-card">
               <div className="challenge-head">
                 <div>
-                  <p className="eyebrow">Reactivo {index + 1}</p>
+                  <p className="eyebrow">Pregunta {index + 1}</p>
                   <h3>{question.topic}</h3>
                 </div>
               </div>
               <p className="exam-prompt">{question.prompt}</p>
+              <ExamQuestionVisual question={question} />
               <label className="field-card no-print">
                 <span>Tu respuesta</span>
                 <input
@@ -3547,7 +3579,7 @@ function ExamSection({ onMegaCelebrate }) {
                 <p className="feedback success-message">Correcto.</p>
               )}
               {question.status === "error" && (
-                <p className="feedback error-message">Revisa este reactivo y vuelve a intentarlo.</p>
+                <p className="feedback error-message">Revisa esta pregunta y vuelve a intentarlo.</p>
               )}
             </article>
           ))}
