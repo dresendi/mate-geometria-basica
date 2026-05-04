@@ -15,7 +15,8 @@ const sectionItems = [
   { id: "fractions", label: "Fracciones" },
   { id: "mayan", label: "Numeros mayas" },
   { id: "measures", label: "Medidas de capacidad" },
-  { id: "decimals", label: "Decimales" }
+  { id: "decimals", label: "Decimales" },
+  { id: "exam", label: "Examen" }
 ];
 
 const syllabusItems = [
@@ -36,7 +37,7 @@ const moduleCards = [
     id: "algorithms",
     title: "Resolver algoritmos",
     description:
-      "Practica suma, resta, multiplicacion y division con enteros y decimales, y aprende a comprobar cada operacion."
+      "Practica suma, resta, multiplicacion y division con enteros y fracciones, y aprende a comprobar cada operacion."
   },
   {
     id: "notation",
@@ -91,6 +92,12 @@ const moduleCards = [
     title: "Decimales",
     description:
       "Ordena numeros decimales hasta diezmilesimos en forma ascendente y descendente."
+  },
+  {
+    id: "exam",
+    title: "Examen",
+    description:
+      "Resuelve 10 retos mezclados del bloque, calificalos en linea o imprimelos para contestar en papel."
   }
 ];
 
@@ -1210,6 +1217,226 @@ const decimalChallengeFactory = () => ({
 const compareValues = (leftValue, rightValue, direction) =>
   direction === "ascending" ? leftValue - rightValue : rightValue - leftValue;
 
+const shuffleArray = (items) => {
+  const nextItems = [...items];
+
+  for (let index = nextItems.length - 1; index > 0; index -= 1) {
+    const swapIndex = randomInt(0, index);
+    [nextItems[index], nextItems[swapIndex]] = [nextItems[swapIndex], nextItems[index]];
+  }
+
+  return nextItems;
+};
+
+const normalizeDecimalListAnswer = (value) =>
+  String(value)
+    .split(",")
+    .map((item) => Number(item.trim().replace(",", ".")))
+    .filter((item) => Number.isFinite(item))
+    .map((item) => formatFixed(item))
+    .join(", ");
+
+const buildGeometryExamPrompt = (figure, measure, values) => {
+  const fieldDetails = figure.fields
+    .map((field) => `${field.label.toLowerCase()} ${values[field.key]}`)
+    .join(", ");
+  const piHelp = figure.id === "circle" ? " Usa pi = 3.1416." : "";
+
+  return `Calcula el ${measure === "area" ? "area" : "perimetro"} del ${figure.name.toLowerCase()} con ${fieldDetails}.${piHelp}`;
+};
+
+const createExamQuestion = (topicId, index) => {
+  if (topicId === "algorithms") {
+    const operationKeys = Object.keys(operationLabels);
+    const exercise = buildAlgorithmExercise(operationKeys[randomInt(0, operationKeys.length - 1)]);
+    const firstValue = toComparableNumber(exercise.firstValue, exercise.displayMode);
+    const secondValue = toComparableNumber(exercise.secondValue, exercise.displayMode);
+    const result = calculateOperation(exercise.operation, firstValue, secondValue);
+
+    return {
+      id: `exam-${topicId}-${index}`,
+      topic: "Resolver algoritmos",
+      prompt: exercise.story,
+      answerType: exercise.displayMode === "fraction" ? "fraction" : "number",
+      expected: result,
+      placeholder: exercise.displayMode === "fraction" ? "Ejemplo: 7/4" : "Escribe tu resultado",
+      tolerance: 0.0001
+    };
+  }
+
+  if (topicId === "notation") {
+    const challenge = createNotationChallenge();
+    const place = decimalPlaceLabels[challenge.placeIndex];
+
+    return {
+      id: `exam-${topicId}-${index}`,
+      topic: "Notacion desarrollada",
+      prompt: `Escribe el valor posicional de ${place.label.toLowerCase()} en ${challenge.value.toFixed(4)}.`,
+      answerType: "number",
+      expected: challenge.expected,
+      placeholder: "Ejemplo: 0.3",
+      tolerance: 0.0001
+    };
+  }
+
+  if (topicId === "geometry") {
+    const figure = geometryFigures[randomInt(0, geometryFigures.length - 1)];
+    const measure = Math.random() > 0.5 ? "area" : "perimeter";
+    const values = figure.createChallenge();
+    const results = figure.calculate(values);
+
+    return {
+      id: `exam-${topicId}-${index}`,
+      topic: "Perimetros y areas",
+      prompt: buildGeometryExamPrompt(figure, measure, values),
+      answerType: "number",
+      expected: results[measure],
+      placeholder: "Escribe tu resultado",
+      tolerance: 0.01
+    };
+  }
+
+  if (topicId === "percentages") {
+    const challenge = percentageChallengeFactory();
+
+    return {
+      id: `exam-${topicId}-${index}`,
+      topic: "Porcentajes",
+      prompt: `Calcula ${challenge.percent}% de ${challenge.total}.`,
+      answerType: "number",
+      expected: (challenge.total * challenge.percent) / 100,
+      placeholder: "Escribe tu resultado",
+      tolerance: 0.01
+    };
+  }
+
+  if (topicId === "rule-of-three") {
+    const challenge = ruleOfThreeChallengeFactory();
+
+    return {
+      id: `exam-${topicId}-${index}`,
+      topic: "Regla de tres",
+      prompt: `Si el 100% de una cantidad es ${challenge.total}, ¿cuanto es ${challenge.percent}%?`,
+      answerType: "number",
+      expected: (challenge.total * challenge.percent) / 100,
+      placeholder: "Escribe tu resultado",
+      tolerance: 0.01
+    };
+  }
+
+  if (topicId === "sequences") {
+    const challenge = createSequenceChallenge();
+    const terms = createSequenceTerms(challenge.type, challenge.start, challenge.step);
+
+    return {
+      id: `exam-${topicId}-${index}`,
+      topic: "Sucesiones",
+      prompt: `Observa la sucesion ${terms.slice(0, 4).map((term) => formatFixed(term)).join(", ")} y escribe el siguiente termino.`,
+      answerType: "number",
+      expected: terms[4],
+      placeholder: "Escribe el siguiente termino",
+      tolerance: 0.0001
+    };
+  }
+
+  if (topicId === "fractions") {
+    const challenge = createFractionChallenge();
+    const first = mixedToFraction(
+      challenge.first.whole,
+      challenge.first.numerator,
+      challenge.first.denominator
+    );
+    const second = mixedToFraction(
+      challenge.second.whole,
+      challenge.second.numerator,
+      challenge.second.denominator
+    );
+    const result =
+      challenge.operation === "addition"
+        ? simplifyFraction({
+            numerator: first.numerator * second.denominator + second.numerator * first.denominator,
+            denominator: first.denominator * second.denominator
+          })
+        : simplifyFraction({
+            numerator: first.numerator * second.denominator - second.numerator * first.denominator,
+            denominator: first.denominator * second.denominator
+          });
+
+    return {
+      id: `exam-${topicId}-${index}`,
+      topic: "Fracciones",
+      prompt: `Resuelve ${toMixedFractionString(first)} ${operationSymbols[challenge.operation]} ${toMixedFractionString(second)}.`,
+      answerType: "fraction",
+      expected: result,
+      placeholder: "Ejemplo: 5/4 o 1.25"
+    };
+  }
+
+  if (topicId === "mayan") {
+    const challenge = mayanChallengeFactory();
+
+    return {
+      id: `exam-${topicId}-${index}`,
+      topic: "Numeros mayas",
+      prompt: `Convierte a decimal el numero maya con niveles ${toThreeLevelMayanDigits(challenge.value).join(" - ")}.`,
+      answerType: "number",
+      expected: challenge.value,
+      placeholder: "Escribe el numero decimal",
+      tolerance: 0.0001
+    };
+  }
+
+  if (topicId === "measures") {
+    const challenge = measurementChallengeFactory();
+    const family = measurementFamilies[challenge.familyKey];
+    const fromUnit = family.units.find((unit) => unit.key === challenge.fromKey);
+    const toUnit = family.units.find((unit) => unit.key === challenge.toKey);
+
+    return {
+      id: `exam-${topicId}-${index}`,
+      topic: "Medidas de capacidad",
+      prompt: `Convierte ${challenge.value} ${fromUnit.label} a ${toUnit.label}.`,
+      answerType: "number",
+      expected: (challenge.value * fromUnit.factor) / toUnit.factor,
+      placeholder: "Escribe la conversion",
+      tolerance: 0.0001
+    };
+  }
+
+  const challenge = decimalChallengeFactory();
+  const orderedList = [...challenge.list]
+    .sort((leftValue, rightValue) => compareValues(leftValue, rightValue, challenge.direction))
+    .map((value) => formatFixed(value))
+    .join(", ");
+
+  return {
+    id: `exam-${topicId}-${index}`,
+    topic: "Decimales",
+    prompt: `Ordena ${challenge.list.map((value) => formatFixed(value)).join(", ")} de forma ${challenge.direction === "ascending" ? "ascendente" : "descendente"}.`,
+    answerType: "list",
+    expected: orderedList,
+    placeholder: "Separa tus respuestas con comas"
+  };
+};
+
+const createExamQuestions = () =>
+  shuffleArray([
+    "algorithms",
+    "notation",
+    "geometry",
+    "percentages",
+    "rule-of-three",
+    "sequences",
+    "fractions",
+    "mayan",
+    "measures",
+    "decimals"
+  ]).map((topicId, index) => ({
+    ...createExamQuestion(topicId, index),
+    answer: "",
+    status: "idle"
+  }));
+
 const toThreeLevelMayanDigits = (value) => {
   const topLevel = Math.floor(value / 400);
   const remainderAfterTop = value % 400;
@@ -2068,7 +2295,7 @@ function AlgorithmsSection({ onCelebrate, isCelebrating }) {
       <SectionHeader
         eyebrow="Operaciones"
         title="Resolver algoritmos"
-        description="Practica suma, resta, multiplicacion y division con enteros positivos y decimales hasta diezmilesimos, y comprueba por que tu resultado es correcto."
+        description="Practica suma, resta, multiplicacion y division con enteros y fracciones, y comprueba por que tu resultado es correcto."
       />
       <div className="lesson-grid">
         <article className="panel-card">
@@ -2192,7 +2419,7 @@ function AlgorithmsSection({ onCelebrate, isCelebrating }) {
             )}
             {challenge.status === "error" && (
               <p className="feedback error-message">
-                Revisa el acomodo de los decimales y usa la comprobacion para verificar tu resultado.
+                Revisa el signo, la operacion y la comprobacion para verificar tu resultado.
               </p>
             )}
           </div>
@@ -3178,6 +3405,158 @@ function DecimalsSection({ onCelebrate, isCelebrating }) {
   );
 }
 
+function ExamSection({ onMegaCelebrate }) {
+  const [questions, setQuestions] = useState(createExamQuestions);
+  const [score, setScore] = useState(null);
+
+  const updateAnswer = (questionId, answer) => {
+    setQuestions((currentQuestions) =>
+      currentQuestions.map((question) =>
+        question.id === questionId
+          ? { ...question, answer, status: "idle" }
+          : question
+      )
+    );
+  };
+
+  const gradeQuestion = (question) => {
+    if (!String(question.answer).trim()) {
+      return false;
+    }
+
+    if (question.answerType === "list") {
+      return normalizeDecimalListAnswer(question.answer) === question.expected;
+    }
+
+    if (question.answerType === "fraction") {
+      const parsedAnswer = parseFractionString(question.answer);
+
+      if (!parsedAnswer) {
+        return false;
+      }
+
+      if (typeof question.expected === "number") {
+        return Math.abs(parsedAnswer.numerator / parsedAnswer.denominator - question.expected) <= 0.0001;
+      }
+
+      return areFractionsEqual(parsedAnswer, question.expected);
+    }
+
+    return Math.abs(parseAnswer(question.answer) - question.expected) <= (question.tolerance ?? 0.0001);
+  };
+
+  const reviewExam = () => {
+    let points = 0;
+
+    setQuestions((currentQuestions) =>
+      currentQuestions.map((question) => {
+        const success = gradeQuestion(question);
+
+        if (success) {
+          points += 1;
+        }
+
+        return {
+          ...question,
+          status: success ? "success" : "error"
+        };
+      })
+    );
+
+    setScore({ points, total: questions.length });
+
+    if (points >= 8) {
+      onMegaCelebrate("#4caf50");
+    }
+  };
+
+  const resetExam = () => {
+    setQuestions(createExamQuestions());
+    setScore(null);
+  };
+
+  const printExam = () => {
+    if (typeof window !== "undefined") {
+      window.print();
+    }
+  };
+
+  return (
+    <section className="page-section exam-section">
+      <SectionHeader
+        eyebrow="Examen"
+        title="Examen del Bloque III"
+        description="Aqui tienes 10 retos mezclados del temario. Puedes resolverlos en la pagina o imprimirlos como PDF para contestarlos en papel."
+      />
+
+      <article className="panel-card">
+        <div className="challenge-head exam-actions">
+          <div className="info-box">
+            <h3>Como funciona</h3>
+            <p>Resuelve los 10 ejercicios y luego revisa tu puntaje. Si logras entre 8 y 10 aciertos, se activa una celebracion especial.</p>
+          </div>
+          <div className="exam-button-group no-print">
+            <button type="button" className="secondary-button" onClick={resetExam}>
+              Nuevo examen
+            </button>
+            <button type="button" className="secondary-button" onClick={printExam}>
+              Imprimir o guardar PDF
+            </button>
+            <button type="button" className="primary-button" onClick={reviewExam}>
+              Calificar examen
+            </button>
+          </div>
+        </div>
+
+        {score && (
+          <div className={`score-banner ${score.points >= 8 ? "is-excellent" : score.points >= 6 ? "is-good" : "is-review"}`}>
+            <strong>
+              Calificacion: {score.points} / {score.total}
+            </strong>
+            <p>
+              {score.points >= 8
+                ? "Excelente trabajo. Alcanzaste una calificacion muy alta."
+                : "Sigue practicando los temas donde fallaste y vuelve a intentarlo."}
+            </p>
+          </div>
+        )}
+
+        <div className="exam-list">
+          {questions.map((question, index) => (
+            <article key={question.id} className="exam-card">
+              <div className="challenge-head">
+                <div>
+                  <p className="eyebrow">Reactivo {index + 1}</p>
+                  <h3>{question.topic}</h3>
+                </div>
+              </div>
+              <p className="exam-prompt">{question.prompt}</p>
+              <label className="field-card no-print">
+                <span>Tu respuesta</span>
+                <input
+                  type="text"
+                  value={question.answer}
+                  placeholder={question.placeholder}
+                  onChange={(event) => updateAnswer(question.id, event.target.value)}
+                />
+              </label>
+              <div className="print-answer-line print-only">
+                Respuesta: _______________________________________________
+              </div>
+              {question.status === "success" && (
+                <p className="feedback success-message">Correcto.</p>
+              )}
+              {question.status === "error" && (
+                <p className="feedback error-message">Revisa este reactivo y vuelve a intentarlo.</p>
+              )}
+            </article>
+          ))}
+        </div>
+      </article>
+    </section>
+  );
+}
+
 function App() {
   const [activeSection, setActiveSection] = useState("home");
   const [burstToken, setBurstToken] = useState(0);
@@ -3244,6 +3623,7 @@ function App() {
   const audioRef = useRef(null);
   const celebrationTimeoutRef = useRef(null);
   const unlockToastTimeoutRef = useRef(null);
+  const extraBurstTimeoutsRef = useRef([]);
   const gamificationRef = useRef(gamificationProgress);
 
   useEffect(() => {
@@ -3326,6 +3706,26 @@ function App() {
     }, 2600);
   };
 
+  const celebrateTripleBurst = (color) => {
+    extraBurstTimeoutsRef.current.forEach((timeoutId) => window.clearTimeout(timeoutId));
+    extraBurstTimeoutsRef.current = [];
+
+    setConfettiColor(color);
+    setBurstToken(Date.now());
+
+    if (audioRef.current) {
+      audioRef.current.currentTime = 0;
+      audioRef.current.play().catch(() => undefined);
+    }
+
+    extraBurstTimeoutsRef.current = [320, 640].map((delay) =>
+      window.setTimeout(() => {
+        setConfettiColor(color);
+        setBurstToken(Date.now() + delay);
+      }, delay)
+    );
+  };
+
   useEffect(
     () => () => {
       if (celebrationTimeoutRef.current) {
@@ -3334,6 +3734,7 @@ function App() {
       if (unlockToastTimeoutRef.current) {
         window.clearTimeout(unlockToastTimeoutRef.current);
       }
+      extraBurstTimeoutsRef.current.forEach((timeoutId) => window.clearTimeout(timeoutId));
     },
     []
   );
@@ -3400,6 +3801,9 @@ function App() {
       )}
       {activeSection === "decimals" && (
         <DecimalsSection onCelebrate={celebrate} isCelebrating={isCelebrating} />
+      )}
+      {activeSection === "exam" && (
+        <ExamSection onMegaCelebrate={celebrateTripleBurst} />
       )}
     </div>
   );
