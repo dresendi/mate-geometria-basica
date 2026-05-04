@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+﻿import { useEffect, useMemo, useRef, useState } from "react";
 import katex from "katex";
 
 const isElenaMode = import.meta.env.ELENA === "true";
@@ -7,29 +7,29 @@ const appTitle = isElenaMode ? "Temario Bloque III para Elenukis" : "Temario Blo
 const sectionItems = [
   { id: "home", label: appTitle },
   { id: "algorithms", label: "Resolver algoritmos" },
-  { id: "notation", label: "NotaciÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â³n desarrollada" },
-  { id: "geometry", label: "PerÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â­metros y ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¡reas" },
+  { id: "notation", label: "Notación desarrollada" },
+  { id: "geometry", label: "Perímetros y áreas" },
   { id: "percentages", label: "Porcentajes" },
   { id: "rule-of-three", label: "Regla de tres" },
   { id: "sequences", label: "Sucesiones" },
   { id: "fractions", label: "Fracciones" },
-  { id: "mayan", label: "NÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Âºmeros mayas" },
+  { id: "mayan", label: "Números mayas" },
   { id: "measures", label: "Medidas de capacidad" },
   { id: "decimals", label: "Decimales" },
   { id: "exam", label: "Examen" }
 ];
 
 const syllabusItems = [
-  "Resolver algoritmos y casos de suma, resta, multiplicaciÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â³n y divisiÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â³n con nÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Âºmeros racionales enteros positivos y decimales hasta diezmilÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â©simos.",
-  "Realizar las comprobaciones de las operaciones bÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¡sicas.",
-  "Escribir en notaciÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â³n desarrollada los nÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Âºmeros decimales e identificar el valor posicinal.",
-  "Ordenar nÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Âºmeros decimales hasta diezmilÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â©simos de forma ascendente y descendente.",
-  "Realizar sucesiones con nÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Âºmeros enteros y fracciones, identificando la constante.",
+  "Resolver algoritmos y casos de suma, resta, multiplicación y división con números racionales enteros positivos y decimales hasta diezmilésimos.",
+  "Realizar las comprobaciones de las operaciones básicas.",
+  "Escribir en notación desarrollada los números decimales e identificar el valor posicional.",
+  "Ordenar números decimales hasta diezmilésimos de forma ascendente y descendente.",
+  "Realizar sucesiones con números enteros y fracciones, identificando la constante.",
   "Resolver casos de porcentaje con regla de tres.",
-  "Calcular el perÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â­metro de figuras regulares e irregulares escribiendo la fÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â³rmula.",
-  "Trabajar medidas de capacidad, peso y longitud con conversiones del sistema mÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â©trico decimal.",
+  "Calcular el perímetro de figuras regulares e irregulares escribiendo la fórmula.",
+  "Trabajar medidas de capacidad, peso y longitud con conversiones del sistema métrico decimal.",
   "Resolver suma y resta de fracciones propias, impropias y mixtas.",
-  "Conocer y aplicar las reglas del sistema maya de numeraciÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â³n."
+  "Conocer y aplicar las reglas del sistema maya de numeración."
 ];
 
 const moduleCards = [
@@ -37,19 +37,19 @@ const moduleCards = [
     id: "algorithms",
     title: "Resolver algoritmos",
     description:
-      "Practica suma, resta, multiplicaciÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â³n y divisiÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â³n con enteros y fracciones, y aprende a comprobar cada operaciÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â³n."
+      "Practica suma, resta, multiplicación y división con enteros y fracciones, y aprende a comprobar cada operación."
   },
   {
     id: "notation",
-    title: "NotaciÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â³n desarrollada",
+    title: "Notación desarrollada",
     description:
-      "Descompone nÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Âºmeros decimales y entiende el valor posicinal de cada cifra."
+      "Descompone números decimales y entiende el valor posicional de cada cifra."
   },
   {
     id: "geometry",
-    title: "PerÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â­metros y ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¡reas",
+    title: "Perímetros y áreas",
     description:
-      "Figuras regulares, un ejemplo irregular como el del temario, formulas con sustituciÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â³n y retos."
+      "Figuras regulares, un ejemplo irregular como el del temario, formulas con sustitución y retos."
   },
   {
     id: "percentages",
@@ -73,13 +73,13 @@ const moduleCards = [
     id: "fractions",
     title: "Fracciones",
     description:
-      "Resuelve suma y resta de fracciones propias, impropias y mixtas con explicaciÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â³n paso a paso."
+      "Resuelve suma y resta de fracciones propias, impropias y mixtas con explicación paso a paso."
   },
   {
     id: "mayan",
-    title: "NÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Âºmeros mayas",
+    title: "Números mayas",
     description:
-      "Lectura y conversiÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â³n del sistema maya con puntos, barras y retos para identificar cantidades."
+      "Lectura y conversión del sistema maya con puntos, barras y retos para identificar cantidades."
   },
   {
     id: "measures",
@@ -91,13 +91,13 @@ const moduleCards = [
     id: "decimals",
     title: "Decimales",
     description:
-      "Ordena nÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Âºmeros decimales hasta diezmilÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â©simos en forma ascendente y descendente."
+      "Ordena números decimales hasta diezmilésimos en forma ascendente y descendente."
   },
   {
     id: "exam",
     title: "Examen",
     description:
-      "Resuelve 10 retos mezclados del bloque, califÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â­calos en lÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â­nea o imprÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â­melos para contestar en papel."
+      "Resuelve 10 retos mezclados del bloque, califícalos en línea o imprímelos para contestar en papel."
   }
 ];
 
@@ -236,12 +236,12 @@ function ConfettiCanvas({ burstToken, activeColor }) {
 
     const pieces = createConfettiPieces(canvas.width, canvas.height, activeColor);
 
-    const draw = (timestamp) => {
+    const draw = (timestámp) => {
       if (!start) {
-        start = timestamp;
+        start = timestámp;
       }
 
-      const elapsed = timestamp - start;
+      const elapsed = timestámp - start;
       context.clearRect(0, 0, canvas.width, canvas.height);
 
       pieces.forEach((piece) => {
@@ -339,7 +339,7 @@ const geometryFigures = [
     name: "Cuadrado",
     color: "#ff7a59",
     accent: "#ffd6ba",
-    explanation: "Todos los lados miden lo mismo, por eso el perÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â­metro es 4 veces el lado.",
+    explanation: "Todos los lados miden lo mismo, por eso el perímetro es 4 veces el lado.",
     fields: [{ key: "side", label: "Lado", shortLabel: "lado" }],
     formulas: {
       perimeter: "P = 4 x lado",
@@ -373,7 +373,7 @@ const geometryFigures = [
     name: "Rectangulo",
     color: "#00a6a6",
     accent: "#c5f3ef",
-    explanation: "El ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¡rea usa base por altura. El perÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â­metro suma dos bases y dos alturas.",
+    explanation: "El area usa base por altura. El perímetro suma dos bases y dos alturas.",
     fields: [
       { key: "base", label: "Base", shortLabel: "base" },
       { key: "height", label: "Altura", shortLabel: "altura" }
@@ -449,7 +449,7 @@ const geometryFigures = [
     color: "#2d9cdb",
     accent: "#c7edff",
     explanation:
-      "El ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¡rea del triÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¡ngulo usa base por altura entre 2. Para el perÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â­metro sumamos sus tres lados.",
+      "El area del triángulo usa base por altura entre 2. Para el perímetro sumamos sus tres lados.",
     fields: [
       { key: "base", label: "Base", shortLabel: "base" },
       { key: "height", label: "Altura", shortLabel: "altura" },
@@ -497,7 +497,7 @@ const geometryFigures = [
     name: "Rombo",
     color: "#ff4f81",
     accent: "#ffd0df",
-    explanation: "El perÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â­metro usa el lado. El ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¡rea usa la diagonal mayor y la diagonal menor.",
+    explanation: "El perímetro usa el lado. El area usa la diagonal mayor y la diagonal menor.",
     fields: [
       { key: "side", label: "Lado", shortLabel: "lado" },
       { key: "majorDiagonal", label: "Diagonal mayor", shortLabel: "diag. mayor" },
@@ -542,7 +542,7 @@ const geometryFigures = [
     name: "Trapecio",
     color: "#ffb703",
     accent: "#ffe4a0",
-    explanation: "El ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¡rea usa base mayor, base menor y altura. El perÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â­metro suma todos los lados.",
+    explanation: "El area usa base mayor, base menor y altura. El perímetro suma todos los lados.",
     fields: [
       { key: "baseMajor", label: "Base mayor", shortLabel: "base mayor" },
       { key: "baseMinor", label: "Base menor", shortLabel: "base menor" },
@@ -602,7 +602,7 @@ const geometryFigures = [
     ],
     formulas: {
       perimeter: "P = 5 x lado",
-      area: "A = (permetro x apotema) / 2"
+      area: "A = (perímetro x apotema) / 2"
     },
     createChallenge: () => ({ side: randomInt(1, 20), apothem: randomInt(1, 20) }),
     calculate(values) {
@@ -770,15 +770,15 @@ const normalizeMayanValue = (value) => {
 const operationLabels = {
   addition: "Suma",
   subtraction: "Resta",
-  multiplication: "MultiplicaciÃƒÆ’Ã‚Â³n",
-  division: "DivisiÃƒÆ’Ã‚Â³n"
+  multiplication: "Multiplicación",
+  division: "División"
 };
 
 const operationSymbols = {
   addition: "+",
   subtraction: "-",
   multiplication: "x",
-  division: "ÃƒÆ’Ã‚Â·"
+  division: "÷"
 };
 
 const operationLatexSymbols = {
@@ -863,7 +863,7 @@ const buildOperationCheck = (operation, firstValue, secondValue, result) => {
     return `${formatNumber(result, 4)} + ${formatNumber(secondValue, 4)} = ${formatNumber(firstValue, 4)}`;
   }
   if (operation === "multiplication") {
-    return `${formatNumber(result, 4)} ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â· ${formatNumber(secondValue, 4)} = ${formatNumber(firstValue, 4)}`;
+    return `${formatNumber(result, 4)} ÷ ${formatNumber(secondValue, 4)} = ${formatNumber(firstValue, 4)}`;
   }
 
   return `${formatNumber(result, 4)} x ${formatNumber(secondValue, 4)} = ${formatNumber(firstValue, 4)}`;
@@ -881,7 +881,7 @@ const buildAlgorithmExercise = (operation) => {
         displayMode: "integer",
         firstValue,
         secondValue,
-        story: `LucÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â­a leyÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â³ ${firstValue} pÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¡ginas el lunes y ${secondValue} pÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¡ginas el martes. CuÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¡ntas pÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¡ginas leyÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â³ en total?`
+        story: `Lucía leyó ${firstValue} páginas el lunes y ${secondValue} páginas el martes. Cuántas páginas leyó en total?`
       };
     }
 
@@ -893,7 +893,7 @@ const buildAlgorithmExercise = (operation) => {
         displayMode: "integer",
         firstValue,
         secondValue,
-        story: `En la biblioteca habÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â­a ${firstValue} cuentos y prestaron ${secondValue}. CuÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¡ntos cuentos quedaron?`
+    story: `En la biblioteca había ${firstValue} cuentos y prestaron ${secondValue}. ¿Cuántos cuentos quedaron?`
       };
     }
 
@@ -905,7 +905,7 @@ const buildAlgorithmExercise = (operation) => {
         displayMode: "integer",
         firstValue,
         secondValue,
-        story: `Hay ${firstValue} cajas y en cada caja caben ${secondValue} dulces. CuÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¡ntos dulces caben en total?`
+    story: `Hay ${firstValue} cajas y en cada caja caben ${secondValue} dulces. ¿Cuántos dulces caben en total?`
       };
     }
 
@@ -917,7 +917,7 @@ const buildAlgorithmExercise = (operation) => {
       displayMode: "integer",
       firstValue,
       secondValue,
-      story: `Pedro tenÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â­a ${firstValue} dulces y ${secondValue} cajas para guardar. CuÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¡ntos dulces puede almacenar en cada caja si reparte todo por igual?`
+    story: `Pedro tenía ${firstValue} dulces y ${secondValue} cajas para guardar. ¿Cuántos dulces puede almacenar en cada caja si reparte todo por igual?`
     };
   }
 
@@ -929,7 +929,7 @@ const buildAlgorithmExercise = (operation) => {
       displayMode: "fraction",
       firstValue,
       secondValue,
-      story: `Mariana caminÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â³ ${toMixedFractionString(firstValue)} kilÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â³metros en la maÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â±ana y ${toMixedFractionString(secondValue)} kilÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â³metros en la tarde. CuÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¡ntos kilÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â³metros caminÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â³ en total?`
+    story: `Mariana caminó ${toMixedFractionString(firstValue)} kilómetros en la mañana y ${toMixedFractionString(secondValue)} kilómetros en la tarde. ¿Cuántos kilómetros caminó en total?`
     };
   }
 
@@ -947,7 +947,7 @@ const buildAlgorithmExercise = (operation) => {
       displayMode: "fraction",
       firstValue,
       secondValue,
-      story: `SofÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â­a tenÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â­a ${toMixedFractionString(firstValue)} litros de jugo y usÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â³ ${toMixedFractionString(secondValue)} litros. CuÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¡nto jugo le quedÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â³?`
+      story: `Sofía tenía ${toMixedFractionString(firstValue)} litros de jugo y usó ${toMixedFractionString(secondValue)} litros. Cuánto jugo le quedó`
     };
   }
 
@@ -959,7 +959,7 @@ const buildAlgorithmExercise = (operation) => {
       displayMode: "fraction",
       firstValue,
       secondValue,
-      story: `Cada cinta mide ${toMixedFractionString(firstValue)} metro y necesitas ${secondValue} cintas iguales. CuÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¡ntos metros de cinta necesitas en total?`
+    story: `Cada cinta mide ${toMixedFractionString(firstValue)} metro y necesitas ${secondValue} cintas iguales. ¿Cuántos metros de cinta necesitas en total?`
     };
   }
 
@@ -975,7 +975,7 @@ const buildAlgorithmExercise = (operation) => {
     displayMode: "fraction",
     firstValue,
     secondValue,
-    story: `Hay ${toMixedFractionString(firstValue)} litros de agua para llenar recipientes de ${toMixedFractionString(secondValue)} litro cada uno. CuÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¡ntos recipientes se llenan por completo?`
+    story: `Hay ${toMixedFractionString(firstValue)} litros de agua para llenar recipientes de ${toMixedFractionString(secondValue)} litro cada uno. ¿Cuántos recipientes se llenan por completo?`
   };
 };
 
@@ -987,10 +987,10 @@ const createAlgorithmChallenge = (operation) => ({
 
 const decimalPlaceLabels = [
   { key: "units", label: "Unidades", factor: 1 },
-  { key: "tenths", label: "DÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â©cimos", factor: 0.1 },
-  { key: "hundredths", label: "CentÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â©simos", factor: 0.01 },
-  { key: "thousandths", label: "MilÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â©simos", factor: 0.001 },
-  { key: "tenThousandths", label: "DiezmilÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â©simos", factor: 0.0001 }
+  { key: "tenths", label: "Décimos", factor: 0.1 },
+  { key: "hundredths", label: "Centésimos", factor: 0.01 },
+  { key: "thousandths", label: "Milésimos", factor: 0.001 },
+  { key: "tenThousandths", label: "Diezmil?simos", factor: 0.0001 }
 ];
 
 const getFixedDecimalDigits = (value) => {
@@ -1242,7 +1242,7 @@ const buildGeometryExamPrompt = (figure, measure, values) => {
     .join(", ");
   const piHelp = figure.id === "circle" ? " Usa pi = 3.1416." : "";
 
-  return `Calcula el ${measure === "area" ? "Ã¡rea" : "perÃ­metro"} del ${figure.name.toLowerCase()} con ${fieldDetails}.${piHelp}`;
+  return `Calcula el ${measure === "area" ? "área" : "perÃƒÂ­metro"} del ${figure.name.toLowerCase()} con ${fieldDetails}.${piHelp}`;
 };
 function ExamQuestionVisual({ question }) {
   if (question.visualType === "geometry") {
@@ -1295,8 +1295,8 @@ const createExamQuestion = (topicId, index) => {
 
     return {
       id: `exam-${topicId}-${index}`,
-      topic: "Notacin desarrollada",
-      prompt: `Escribe el valor posicinal de ${place.label.toLowerCase()} en ${challenge.value.toFixed(4)}.`,
+      topic: "Notación desarrollada",
+      prompt: `Escribe el valor posicional de ${place.label.toLowerCase()} en ${challenge.value.toFixed(4)}.`,
       answerType: "number",
       expected: challenge.expected,
       placeholder: "Ejemplo: 0.3",
@@ -1312,7 +1312,7 @@ const createExamQuestion = (topicId, index) => {
 
     return {
       id: `exam-${topicId}-${index}`,
-      topic: "Perímetros y áreas",
+      topic: "PerÃ­metros y areas",
       prompt: buildGeometryExamPrompt(figure, measure, values),
       answerType: "number",
       expected: results[measure],
@@ -1344,7 +1344,7 @@ const createExamQuestion = (topicId, index) => {
     return {
       id: `exam-${topicId}-${index}`,
       topic: "Regla de tres",
-      prompt: `Si el 100% de una cantidad es ${challenge.total}, cunto es ${challenge.percent}%?`,
+      prompt: `Si el 100% de una cantidad es ${challenge.total}, cuánto es ${challenge.percent}%?`,
       answerType: "number",
       expected: (challenge.total * challenge.percent) / 100,
       placeholder: "Escribe tu resultado",
@@ -1359,7 +1359,7 @@ const createExamQuestion = (topicId, index) => {
     return {
       id: `exam-${topicId}-${index}`,
       topic: "Sucesiones",
-      prompt: `Observa la sucesin ${terms.slice(0, 4).map((term) => formatFixed(term)).join(", ")} y escribe el siguiente termino.`,
+      prompt: `Observa la sucesión ${terms.slice(0, 4).map((term) => formatFixed(term)).join(", ")} y escribe el siguiente termino.`,
       answerType: "number",
       expected: terms[4],
       placeholder: "Escribe el siguiente termino",
@@ -1405,11 +1405,11 @@ const createExamQuestion = (topicId, index) => {
 
     return {
       id: `exam-${topicId}-${index}`,
-      topic: "Nmeros mayas",
-      prompt: "Observa el nÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Âºmero maya y escribe su valor decimal.",
+      topic: "Números mayas",
+      prompt: "Observa el número maya y escribe su valor decimal.",
       answerType: "number",
       expected: challenge.value,
-      placeholder: "Escribe el nÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Âºmero decimal",
+      placeholder: "Escribe el número decimal",
       tolerance: 0.0001,
       visualType: "mayan",
       visualValue: challenge.value
@@ -1445,7 +1445,7 @@ const createExamQuestion = (topicId, index) => {
     prompt: `Ordena ${challenge.list.map((value) => formatFixed(value)).join(", ")} de forma ${challenge.direction === "ascending" ? "ascendente" : "descendente"}.`,
     answerType: "list",
     expected: orderedList,
-    placeholder: "Separa tus respuestas con comas"
+    placeholder: "Separa tus respuestás con comas"
   };
 };
 
@@ -1506,7 +1506,7 @@ function MayanDigit({ value }) {
 
 function MayanDisplay({ value }) {
   const digits = toThreeLevelMayanDigits(value);
-  const levelLabels = ["Nivel 3 ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¦ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â· x400", "Nivel 2 ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¦ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â· x20", "Nivel 1 ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¦ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â· x1"];
+  const levelLabels = ["Nivel 3 ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¾Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Â¦Ãƒâ€šÃ‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â¦ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¡ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â· x400", "Nivel 2 ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¾Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Â¦Ãƒâ€šÃ‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â¦ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¡ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â· x20", "Nivel 1 ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¾Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Â¦Ãƒâ€šÃ‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â¦ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¡ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â· x1"];
 
   return (
     <div className="mayan-display" aria-label={`Numero maya para ${value}`}>
@@ -1718,8 +1718,8 @@ function GeometrySection({ onCelebrate, isCelebrating }) {
   return (
     <section className="page-section">
       <SectionHeader
-        eyebrow="GeometrÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â­a"
-        title="Perímetros y áreas"
+        eyebrow="Geometría"
+        title="PerÃ­metros y areas"
         description="Trabaja una figura a la vez. Primero exploras figuras regulares y despues una figura irregular como la del temario."
       />
 
@@ -1750,11 +1750,11 @@ function GeometrySection({ onCelebrate, isCelebrating }) {
           <div className="shape-stage">{activeFigure.renderFigure(activeValues)}</div>
           <div className="formula-grid">
             <div className="info-box">
-              <h3>FÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â³rmula del permetro</h3>
+              <h3>Fórmula del perímetro</h3>
               <p>{activeFigure.formulas.perimeter}</p>
             </div>
             <div className="info-box">
-              <h3>FÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â³rmula del area</h3>
+              <h3>Fórmula del area</h3>
               <p>{activeFigure.formulas.area}</p>
             </div>
           </div>
@@ -1769,7 +1769,7 @@ function GeometrySection({ onCelebrate, isCelebrating }) {
           <SectionHeader
             eyebrow="Ingresa las medidas"
             title="Calculadora interactiva"
-            description="Los valores van del 1 al 20 y la sustitucin se actualiza en tiempo real."
+            description="Los valores van del 1 al 20 y la sustitución se actualiza en tiempo real."
           />
 
           <div className="input-grid">
@@ -1812,14 +1812,14 @@ function GeometrySection({ onCelebrate, isCelebrating }) {
             <div className="challenge-head">
               <div>
                 <p className="eyebrow">Reto</p>
-                <h3>Resuelve sin ver la respuesta</h3>
+                <h3>Resuelve sin ver la respuestá</h3>
               </div>
               <button type="button" className="secondary-button" onClick={refreshRegularChallenge}>
                 Nuevo reto
               </button>
             </div>
             <p className="challenge-copy">
-              Usa estas medidas:
+              Usa estás medidas:
               {" "}
               {activeFigure.fields
                 .map((field) => `${field.shortLabel}: ${activeChallenge.values[field.key]}`)
@@ -1829,7 +1829,7 @@ function GeometrySection({ onCelebrate, isCelebrating }) {
             </p>
             <div className="challenge-inputs">
               <label className="field-card">
-                <span>Tu permetro</span>
+                <span>Tu perímetro</span>
                 <input
                   type="text"
                   value={activeChallenge.answerPerimeter}
@@ -1857,17 +1857,17 @@ function GeometrySection({ onCelebrate, isCelebrating }) {
               onClick={validateRegularChallenge}
               {...getReviewButtonState(activeChallenge.status, isCelebrating)}
             >
-              Revisar respuesta
+              Revisar respuestá
             </button>
             {activeChallenge.status === "success" && (
               <p className="feedback success-message">
-                Excelente. El permetro es {formatNumber(challengeResults.perimeter)} y el area es{" "}
+                Excelente. El perímetro es {formatNumber(challengeResults.perimeter)} y el area es{" "}
                 {formatNumber(challengeResults.area)}.
               </p>
             )}
             {activeChallenge.status === "error" && (
               <p className="feedback error-message">
-                An no coincide. Revisa la sustitucin y vuelve a intentarlo con calma.
+                An no coincide. Revisa la sustitución y vuelve a intentarlo con calma.
               </p>
             )}
           </div>
@@ -1896,12 +1896,12 @@ function GeometrySection({ onCelebrate, isCelebrating }) {
           </div>
           <div className="formula-grid single-column">
             <div className="info-box">
-              <h3>FÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â³rmula</h3>
+              <h3>Fórmula</h3>
               <p>P = a + b + c + d + e</p>
             </div>
             <div className="info-box">
               <h3>Nota sobre el area</h3>
-              <p>En primaria, el area de una figura irregular suele encontrarse dividiendola en figuras mas simples.</p>
+              <p>En primaria, el area de una figura irregular suele encontrarse dividiéndola en figuras más simples.</p>
             </div>
           </div>
         </article>
@@ -1909,8 +1909,8 @@ function GeometrySection({ onCelebrate, isCelebrating }) {
         <article className="panel-card">
           <SectionHeader
             eyebrow="Suma cada lado"
-            title="Practica guada"
-            description="Cambia los lados del 1 al 20 y observa como se forma el permetro."
+            title="Practica guiada"
+            description="Cambia los lados del 1 al 20 y observa como se forma el perímetro."
           />
           <div className="input-grid">
             {[
@@ -1948,7 +1948,7 @@ function GeometrySection({ onCelebrate, isCelebrating }) {
             <div className="challenge-head">
               <div>
                 <p className="eyebrow">Reto irregular</p>
-                <h3>Encuentra el permetro</h3>
+                <h3>Encuentra el perímetro</h3>
               </div>
               <button type="button" className="secondary-button" onClick={refreshIrregularChallenge}>
                 Nuevo reto
@@ -1960,7 +1960,7 @@ function GeometrySection({ onCelebrate, isCelebrating }) {
               {irregularChallenge.values.sideD}, e = {irregularChallenge.values.sideE}.
             </p>
             <label className="field-card">
-              <span>Tu permetro</span>
+              <span>Tu perímetro</span>
               <input
                 type="text"
                 value={irregularChallenge.answerPerimeter}
@@ -1974,11 +1974,11 @@ function GeometrySection({ onCelebrate, isCelebrating }) {
               onClick={validateIrregularChallenge}
               {...getReviewButtonState(irregularChallenge.status, isCelebrating)}
             >
-              Revisar respuesta
+              Revisar respuestá
             </button>
             {irregularChallenge.status === "success" && (
               <p className="feedback success-message">
-                Muy bien. El permetro correcto es {formatNumber(irregularChallengePerimeter)}.
+                Muy bien. El perímetro correcto es {formatNumber(irregularChallengePerimeter)}.
               </p>
             )}
             {irregularChallenge.status === "error" && (
@@ -2019,7 +2019,7 @@ function PercentagesSection({ onCelebrate, isCelebrating }) {
       <SectionHeader
         eyebrow="Porcentajes"
         title="Porcentajes simples"
-        description="Calcula porcentajes como en el ejemplo 50% de 800 = 400 y observa cada sustitucin."
+        description="Calcula porcentajes como en el ejemplo 50% de 800 = 400 y observa cada sustitución."
       />
 
       <div className="lesson-grid">
@@ -2053,7 +2053,7 @@ function PercentagesSection({ onCelebrate, isCelebrating }) {
           </div>
           <div className="formula-grid single-column">
             <div className="info-box">
-              <h3>FÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â³rmula general</h3>
+              <h3>Fórmula general</h3>
               <p>Porcentaje = (porcentaje / 100) x cantidad total</p>
             </div>
             <div className="substitution-card">
@@ -2065,7 +2065,7 @@ function PercentagesSection({ onCelebrate, isCelebrating }) {
             </div>
           </div>
           <div className="result-card">
-            <h3>Respuesta</h3>
+            <h3>Respuestá</h3>
             <strong>{formatNumber(percentageResult)}</strong>
           </div>
         </article>
@@ -2074,7 +2074,7 @@ function PercentagesSection({ onCelebrate, isCelebrating }) {
           <SectionHeader
             eyebrow="Reto"
             title="Hazlo tu"
-            description="Resuelve el porcentaje sin ver la respuesta y despues comparala."
+            description="Resuelve el porcentaje sin ver la respuestá y despues comparala."
           />
           <div className="challenge-card">
             <div className="challenge-head">
@@ -2091,7 +2091,7 @@ function PercentagesSection({ onCelebrate, isCelebrating }) {
               </button>
             </div>
             <label className="field-card">
-              <span>Tu respuesta</span>
+              <span>Tu respuestá</span>
               <input
                 type="text"
                 value={challenge.answer}
@@ -2111,7 +2111,7 @@ function PercentagesSection({ onCelebrate, isCelebrating }) {
               onClick={validateChallenge}
               {...getReviewButtonState(challenge.status, isCelebrating)}
             >
-              Revisar respuesta
+              Revisar respuestá
             </button>
             {challenge.status === "success" && (
               <p className="feedback success-message">
@@ -2120,7 +2120,7 @@ function PercentagesSection({ onCelebrate, isCelebrating }) {
             )}
             {challenge.status === "error" && (
               <p className="feedback error-message">
-                Revisa la fraccin del porcentaje: porcentaje entre 100, y luego multiplica.
+                Revisa la fracción del porcentaje: porcentaje entre 100, y luego multiplica.
               </p>
             )}
           </div>
@@ -2212,7 +2212,7 @@ function RuleOfThreeSection({ onCelebrate, isCelebrating }) {
           </div>
 
           <div className="result-card">
-            <h3>Respuesta</h3>
+            <h3>Respuestá</h3>
             <strong>{formatNumber(xResult)}</strong>
           </div>
         </article>
@@ -2263,7 +2263,7 @@ function RuleOfThreeSection({ onCelebrate, isCelebrating }) {
               onClick={validateChallenge}
               {...getReviewButtonState(challenge.status, isCelebrating)}
             >
-              Revisar respuesta
+              Revisar respuestá
             </button>
             {challenge.status === "success" && (
               <p className="feedback success-message">
@@ -2325,14 +2325,14 @@ function AlgorithmsSection({ onCelebrate, isCelebrating }) {
       <SectionHeader
         eyebrow="Operaciones"
         title="Resolver algoritmos"
-        description="Practica suma, resta, multiplicacin y divisin con enteros y fracciones, y comprueba por que tu resultado es correcto."
+        description="Practica suma, restá, multiplicacin y divisin con enteros y fracciones, y comprueba por que tu resultado es correcto."
       />
       <div className="lesson-grid">
         <article className="panel-card">
           <SectionHeader
-            eyebrow="Calculadora guada"
-            title="Elige una operacin"
-            description="Puedes cambiar la operacin y ver su comprobacion para entender la importancia de revisar tu trabajo."
+            eyebrow="Calculadora guiada"
+            title="Elige una operación"
+            description="Puedes cambiar la operación y ver su comprobacion para entender la importancia de revisar tu trabajo."
           />
           <div className="selector-row">
             {Object.entries(operationLabels).map(([key, label]) => (
@@ -2390,7 +2390,7 @@ function AlgorithmsSection({ onCelebrate, isCelebrating }) {
             </p>
           </div>
           <div className="info-box">
-            <h3>Por quÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â© es importante comprobar?</h3>
+            <h3>Por qué es importante comprobar?</h3>
             <p>Comprobar ayuda a detectar errores de signo, acomodo de decimales y cuentas mal hechas antes de entregar el ejercicio.</p>
           </div>
         </article>
@@ -2399,7 +2399,7 @@ function AlgorithmsSection({ onCelebrate, isCelebrating }) {
           <SectionHeader
             eyebrow="Reto"
             title="Resuelve el algoritmo"
-            description="Haz la operacin y luego piensa como la comprobarias."
+            description="Haz la operación y luego piensa como la comprobarias."
           />
           <div className="challenge-card">
             <div className="challenge-head">
@@ -2420,7 +2420,7 @@ function AlgorithmsSection({ onCelebrate, isCelebrating }) {
               <p>{challenge.story}</p>
             </div>
             <label className="field-card">
-              <span>Tu respuesta</span>
+              <span>Tu respuestá</span>
               <input
                 type="text"
                 value={challenge.answer}
@@ -2440,7 +2440,7 @@ function AlgorithmsSection({ onCelebrate, isCelebrating }) {
               onClick={validateChallenge}
               {...getReviewButtonState(challenge.status, isCelebrating)}
             >
-              Revisar respuesta
+              Revisar respuestá
             </button>
             {challenge.status === "success" && (
               <p className="feedback success-message">
@@ -2449,7 +2449,7 @@ function AlgorithmsSection({ onCelebrate, isCelebrating }) {
             )}
             {challenge.status === "error" && (
               <p className="feedback error-message">
-                Revisa el signo, la operacin y la comprobacion para verificar tu resultado.
+                Revisa el signo, la operación y la comprobacion para verificar tu resultado.
               </p>
             )}
           </div>
@@ -2481,16 +2481,16 @@ function NotationSection({ onCelebrate, isCelebrating }) {
   return (
     <section className="page-section">
       <SectionHeader
-        eyebrow="Valor posicinal"
-        title="Notacin desarrollada"
-        description="Descompone nÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Âºmeros decimales y observa que cada cifra tiene un valor segn su posicin."
+        eyebrow="Valor posicional"
+        title="Notación desarrollada"
+        description="Descompone números decimales y observa que cada cifra tiene un valor según su posici?n."
       />
       <div className="lesson-grid">
         <article className="panel-card">
           <SectionHeader
             eyebrow="Explorador"
-            title="Desarrolla un nÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Âºmero decimal"
-            description="Escribe un nÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Âºmero con hasta cuatro decimales y mira su expansiÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â³n."
+            title="Desarrolla un número decimal"
+            description="Escribe un número con hasta cuatro decimales y mira su expansi?n."
           />
           <label className="field-card narrow-field">
             <span>Numero decimal</span>
@@ -2507,7 +2507,7 @@ function NotationSection({ onCelebrate, isCelebrating }) {
             ))}
           </div>
           <div className="substitution-card">
-            <h3>Notacin desarrollada</h3>
+            <h3>Notación desarrollada</h3>
             <p>
               <span>Expansion:</span> {buildExpandedNotation(numberValue)}
             </p>
@@ -2517,8 +2517,8 @@ function NotationSection({ onCelebrate, isCelebrating }) {
         <article className="panel-card">
           <SectionHeader
             eyebrow="Reto"
-            title="Identifica el valor posicinal"
-            description="Encuentra cunto vale la cifra marcada segn su lugar en el nÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Âºmero."
+            title="Identifica el valor posicional"
+            description="Encuentra cuánto vale la cifra marcada según su lugar en el número."
           />
           <div className="challenge-card">
             <div className="challenge-head">
@@ -2533,13 +2533,13 @@ function NotationSection({ onCelebrate, isCelebrating }) {
             <div className="info-box">
               <h3>Pregunta</h3>
               <p>
-                CuÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¡l es el valor de la cifra {challengeParts.digits[challenge.placeIndex]} en la posicin
+                Cuál es el valor de la cifra {challengeParts.digits[challenge.placeIndex]} en la posici?n
                 {" "}
                 {decimalPlaceLabels[challenge.placeIndex].label.toLowerCase()}?
               </p>
             </div>
             <label className="field-card">
-              <span>Tu respuesta</span>
+              <span>Tu respuestá</span>
               <input
                 type="text"
                 value={challenge.answer}
@@ -2559,7 +2559,7 @@ function NotationSection({ onCelebrate, isCelebrating }) {
               onClick={validateChallenge}
               {...getReviewButtonState(challenge.status, isCelebrating)}
             >
-              Revisar respuesta
+              Revisar respuestá
             </button>
             {challenge.status === "success" && (
               <p className="feedback success-message">
@@ -2568,7 +2568,7 @@ function NotationSection({ onCelebrate, isCelebrating }) {
             )}
             {challenge.status === "error" && (
               <p className="feedback error-message">
-                Revisa en que columna esta la cifra: unidades, decimos, centesimos, milesimos o diezmilsimos.
+                Revisa en que columna está la cifra: unidades, décimos, centésimos, milésimos o diezmilésimos.
               </p>
             )}
           </div>
@@ -2620,13 +2620,13 @@ function SequencesSection({ onCelebrate, isCelebrating }) {
       <SectionHeader
         eyebrow="Patrones"
         title="Sucesiones"
-        description="Observa como una regla constante hace crecer o disminuir una sucesin con enteros o fracciones."
+        description="Observa como una regla constante hace crecer o disminuir una sucesión con enteros o fracciones."
       />
       <div className="lesson-grid">
         <article className="panel-card">
           <SectionHeader
             eyebrow="Practica"
-            title="Construye una sucesin"
+            title="Construye una sucesión"
             description="Elige enteros o fracciones y observa la constante."
           />
           <div className="selector-row">
@@ -2687,12 +2687,12 @@ function SequencesSection({ onCelebrate, isCelebrating }) {
         </article>
 
         <article className="panel-card">
-          <SectionHeader eyebrow="Reto" title="Encuentra el siguiente termino" description="Descubre el siguiente termino y la constante de una sucesin con nÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Âºmeros decimales." />
+          <SectionHeader eyebrow="Reto" title="Encuentra el siguiente termino" description="Descubre el siguiente termino y la constante de una sucesión con números decimales." />
           <div className="challenge-card">
             <div className="challenge-head">
               <div>
                 <p className="eyebrow">Decimales</p>
-                <h3>Qu sigue?</h3>
+                <h3>Qué sigue?</h3>
               </div>
               <button type="button" className="secondary-button" onClick={() => setChallenge(createSequenceChallenge())}>
                 Nuevo reto
@@ -2722,13 +2722,13 @@ function SequencesSection({ onCelebrate, isCelebrating }) {
               onClick={validateChallenge}
               {...getReviewButtonState(challenge.status, isCelebrating)}
             >
-              Revisar respuesta
+              Revisar respuestá
             </button>
             {challenge.status === "success" && (
               <p className="feedback success-message">Excelente. Ya identificaste el siguiente termino y la constante.</p>
             )}
             {challenge.status === "error" && (
-              <p className="feedback error-message">Revisa cunto cambia cada termino respecto al anterior.</p>
+              <p className="feedback error-message">Revisa cuánto cambia cada termino respecto al anterior.</p>
             )}
           </div>
         </article>
@@ -2800,18 +2800,18 @@ function FractionsSection({ onCelebrate, isCelebrating }) {
     <section className="page-section">
       <SectionHeader
         eyebrow="Fracciones"
-        title="Suma y resta de fracciones"
+        title="Suma y restá de fracciones"
         description="Trabaja con fracciones propias, impropias y mixtas. Primero conviertes, luego igualas denominadores y al final simplificas."
       />
       <div className="lesson-grid">
         <article className="panel-card">
-          <SectionHeader eyebrow="Practica guada" title="Arma dos fracciones" description="Si el nÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Âºmero entero es mayor que cero, la fraccin se vuelve mixta." />
+          <SectionHeader eyebrow="Practica guiada" title="Arma dos fracciones" description="Si el número entero es mayor que cero, la fracción se vuelve mixta." />
           <div className="selector-row">
             <button type="button" className={`topic-pill neutral-pill ${operation === "addition" ? "is-active" : ""}`} onClick={() => setOperation("addition")}>
               Suma
             </button>
             <button type="button" className={`topic-pill neutral-pill ${operation === "subtraction" ? "is-active" : ""}`} onClick={() => setOperation("subtraction")}>
-              Resta
+              Restá
             </button>
           </div>
           <div className="input-grid">
@@ -2866,11 +2866,11 @@ function FractionsSection({ onCelebrate, isCelebrating }) {
         </article>
 
         <article className="panel-card">
-          <SectionHeader eyebrow="Reto" title="Resuelve la operacin" description="Escribe tu resultado como fraccin simplificada, por ejemplo 7/4." />
+          <SectionHeader eyebrow="Reto" title="Resuelve la operación" description="Escribe tu resultado como fracción simplificada, por ejemplo 7/4." />
           <div className="challenge-card">
             <div className="challenge-head">
               <div>
-                <p className="eyebrow">{challenge.operation === "addition" ? "Suma" : "Resta"}</p>
+                <p className="eyebrow">{challenge.operation === "addition" ? "Suma" : "Restá"}</p>
                 <h3>
                   <MathInline
                     expression={`${mixedFractionToLatex(challenge.first)} ${
@@ -2884,7 +2884,7 @@ function FractionsSection({ onCelebrate, isCelebrating }) {
               </button>
             </div>
             <label className="field-card">
-              <span>Tu respuesta</span>
+              <span>Tu respuestá</span>
               <input type="text" value={challenge.answer} {...getChallengeLockState(challenge.status, isCelebrating)} onChange={(event) => setChallenge((currentState) => ({ ...currentState, answer: event.target.value, status: "idle" }))} placeholder="Ejemplo: 7/4" />
             </label>
             <button
@@ -2893,7 +2893,7 @@ function FractionsSection({ onCelebrate, isCelebrating }) {
               onClick={validateChallenge}
               {...getReviewButtonState(challenge.status, isCelebrating)}
             >
-              Revisar respuesta
+              Revisar respuestá
             </button>
             {challenge.status === "success" && (
               <p className="feedback success-message">
@@ -2940,7 +2940,7 @@ function MayanSection({ onCelebrate, isCelebrating }) {
     <section className="page-section">
       <SectionHeader
         eyebrow="Sistema maya"
-        title="Nmeros mayas"
+        title="Números mayas"
         description="El sistema maya usa puntos, barras, concha para el cero y tres niveles. Abajo van unidades, en medio grupos de 20 y arriba grupos de 400."
       />
 
@@ -2948,8 +2948,8 @@ function MayanSection({ onCelebrate, isCelebrating }) {
         <article className="panel-card">
           <SectionHeader
             eyebrow="Explorador"
-            title="Escribe un nÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Âºmero decimal"
-            description="Prueba del 0 al 2219. En esta version usamos tres niveles: abajo hasta 19, en medio hasta 10 y arriba hasta 5."
+            title="Escribe un número decimal"
+            description="Prueba del 0 al 2219. En está version usamos tres niveles: abajo hasta 19, en medio hasta 10 y arriba hasta 5."
           />
           <label className="field-card narrow-field">
             <span>Numero decimal</span>
@@ -2967,7 +2967,7 @@ function MayanSection({ onCelebrate, isCelebrating }) {
             <MayanDisplay value={decimalValue} />
           </div>
           <div className="substitution-card">
-            <h3>Descomposicin</h3>
+            <h3>Descomposición</h3>
             <p>
               <span>Numero:</span> {decimalValue} = {expandedText}
             </p>
@@ -2977,7 +2977,7 @@ function MayanSection({ onCelebrate, isCelebrating }) {
               <h3>Reglas rapidas</h3>
               <p>Un punto vale 1, una barra vale 5, la concha vale 0 y los niveles se leen de arriba hacia abajo.</p>
               <p>Nivel 1: de 0 a 19. Nivel 2: de 0 a 10. Nivel 3: de 0 a 5.</p>
-              <p>Si escribes un nÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Âºmero grande, la app lo ajusta a esos limites para mantener el ejemplo dentro de este temario.</p>
+              <p>Si escribes un número grande, la app lo ajusta a esos límites para mantener el ejemplo dentro de este temario.</p>
             </div>
           </div>
         </article>
@@ -2985,8 +2985,8 @@ function MayanSection({ onCelebrate, isCelebrating }) {
         <article className="panel-card">
           <SectionHeader
             eyebrow="Reto"
-            title="QuÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â© nÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Âºmero ves?"
-            description="Observa el nÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Âºmero maya y escribe su valor decimal."
+            title="Qué número ves?"
+            description="Observa el número maya y escribe su valor decimal."
           />
           <div className="challenge-card">
             <div className="challenge-head">
@@ -3006,7 +3006,7 @@ function MayanSection({ onCelebrate, isCelebrating }) {
               <MayanDisplay value={challenge.value} />
             </div>
             <label className="field-card">
-              <span>Tu respuesta en decimal</span>
+              <span>Tu respuestá en decimal</span>
               <input
                 type="number"
                 min="0"
@@ -3029,11 +3029,11 @@ function MayanSection({ onCelebrate, isCelebrating }) {
               onClick={validateChallenge}
               {...getReviewButtonState(challenge.status, isCelebrating)}
             >
-              Revisar respuesta
+              Revisar respuestá
             </button>
             {challenge.status === "success" && (
               <p className="feedback success-message">
-                Excelente. Ese nÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Âºmero maya representa {challenge.value}.
+                Excelente. Ese número maya representa {challenge.value}.
               </p>
             )}
             {challenge.status === "error" && (
@@ -3087,7 +3087,7 @@ function MeasuresSection({ onCelebrate, isCelebrating }) {
   return (
     <section className="page-section">
       <SectionHeader
-        eyebrow="Sistema mtrico"
+        eyebrow="Sistema métrico"
         title="Medidas de capacidad"
         description="Aqui tambien estudiamos peso y longitud porque en el temario vienen juntas como conversiones decimales."
       />
@@ -3182,7 +3182,7 @@ function MeasuresSection({ onCelebrate, isCelebrating }) {
               </button>
             </div>
             <label className="field-card">
-              <span>Tu respuesta</span>
+              <span>Tu respuestá</span>
               <input
                 type="text"
                 value={challenge.answer}
@@ -3202,7 +3202,7 @@ function MeasuresSection({ onCelebrate, isCelebrating }) {
               onClick={validateChallenge}
               {...getReviewButtonState(challenge.status, isCelebrating)}
             >
-              Revisar respuesta
+              Revisar respuestá
             </button>
             {challenge.status === "success" && (
               <p className="feedback success-message">
@@ -3289,14 +3289,14 @@ function DecimalsSection({ onCelebrate, isCelebrating }) {
     <section className="page-section">
       <SectionHeader
         eyebrow="Decimales"
-        title="Ordenar nÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Âºmeros hasta diezmilsimos"
-        description="Observa sus cuatro posicines decimales y compara de izquierda a derecha para decidir cual va primero."
+        title="Ordenar números hasta diezmilésimos"
+        description="Observa sus cuatro posiciones decimales y compara de izquierda a derecha para decidir cuál va primero."
       />
 
       <div className="lesson-grid">
         <article className="panel-card">
           <SectionHeader
-            eyebrow="Practica guada"
+            eyebrow="Practica guiada"
             title="Ascendente o descendente"
             description="Genera una lista nueva y cambia el sentido del orden para comparar."
           />
@@ -3345,7 +3345,7 @@ function DecimalsSection({ onCelebrate, isCelebrating }) {
           <SectionHeader
             eyebrow="Reto"
             title="Escribe el orden correcto"
-            description="Separa tus respuestas con comas y conserva cuatro decimales si lo necesitas."
+            description="Separa tus respuestás con comas y conserva cuatro decimales si lo necesitas."
           />
           <div className="challenge-card">
             <div className="challenge-head">
@@ -3411,14 +3411,14 @@ function DecimalsSection({ onCelebrate, isCelebrating }) {
               onClick={validateChallenge}
               {...getReviewButtonState(challenge.status, isCelebrating)}
             >
-              Revisar respuesta
+              Revisar respuestá
             </button>
             {challenge.status === "success" && (
               <p className="feedback success-message">Muy bien. Ese era el orden correcto.</p>
             )}
             {challenge.status === "error" && (
               <p className="feedback error-message">
-                No coincide an. Compara primero unidades, luego decimos, centesimos, milesimos y diezmilsimos.
+                No coincide aún. Compara primero unidades, luego décimos, centésimos, milésimos y diezmilésimos.
               </p>
             )}
             <div className="substitution-card">
@@ -3516,7 +3516,7 @@ function ExamSection({ onMegaCelebrate }) {
       <SectionHeader
         eyebrow="Examen"
         title="Examen del Bloque III"
-        description="Aqui tienes 10 retos mezclados del temario. Puedes resolverlos en la pgina o imprimirlos como PDF para contestarlos en papel."
+        description="Aqui tienes 10 retos mezclados del temario. Puedes resolverlos en la pgina o imprimirlos como PDF para contestárlos en papel."
       />
 
       <article className="panel-card">
@@ -3563,7 +3563,7 @@ function ExamSection({ onMegaCelebrate }) {
               <p className="exam-prompt">{question.prompt}</p>
               <ExamQuestionVisual question={question} />
               <label className="field-card no-print">
-                <span>Tu respuesta</span>
+                <span>Tu respuestá</span>
                 <input
                   type="text"
                   value={question.answer}
@@ -3572,13 +3572,13 @@ function ExamSection({ onMegaCelebrate }) {
                 />
               </label>
               <div className="print-answer-line print-only">
-                Respuesta: _______________________________________________
+                Respuestá: _______________________________________________
               </div>
               {question.status === "success" && (
                 <p className="feedback success-message">Correcto.</p>
               )}
               {question.status === "error" && (
-                <p className="feedback error-message">Revisa esta pregunta y vuelve a intentarlo.</p>
+                <p className="feedback error-message">Revisa está pregunta y vuelve a intentarlo.</p>
               )}
             </article>
           ))}
@@ -3779,7 +3779,7 @@ function App() {
 
       <header className="topbar-card">
         <div>
-          <p className="eyebrow">Matemticas Rogers Hall 5ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Â¦Ãƒâ€šÃ‚Â¡ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â°</p>
+          <p className="eyebrow">Matemáticas Rogers Hall 5°</p>
           <h1>{appTitle}</h1>
         </div>
         <nav className="top-nav" aria-label="Secciones del temario">
@@ -3841,4 +3841,7 @@ function App() {
 }
 
 export default App;
+
+
+
 
