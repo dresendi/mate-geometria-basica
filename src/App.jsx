@@ -881,7 +881,7 @@ const buildAlgorithmExercise = (operation) => {
         displayMode: "integer",
         firstValue,
         secondValue,
-        story: `Lucía leyó ${firstValue} páginas el lunes y ${secondValue} páginas el martes. Cuántas páginas leyó en total?`
+    story: `Lucía leyó ${firstValue} páginas el lunes y ${secondValue} páginas el martes. ¿Cuántas páginas leyó en total?`
       };
     }
 
@@ -990,7 +990,7 @@ const decimalPlaceLabels = [
   { key: "tenths", label: "Décimos", factor: 0.1 },
   { key: "hundredths", label: "Centésimos", factor: 0.01 },
   { key: "thousandths", label: "Milésimos", factor: 0.001 },
-  { key: "tenThousandths", label: "Diezmil?simos", factor: 0.0001 }
+  { key: "tenThousandths", label: "Diezmilésimos", factor: 0.0001 }
 ];
 
 const getFixedDecimalDigits = (value) => {
@@ -1242,7 +1242,7 @@ const buildGeometryExamPrompt = (figure, measure, values) => {
     .join(", ");
   const piHelp = figure.id === "circle" ? " Usa pi = 3.1416." : "";
 
-  return `Calcula el ${measure === "area" ? "área" : "perÃƒÂ­metro"} del ${figure.name.toLowerCase()} con ${fieldDetails}.${piHelp}`;
+  return `Calcula el ${measure === "area" ? "área" : "perímetro"} del ${figure.name.toLowerCase()} con ${fieldDetails}.${piHelp}`;
 };
 function ExamQuestionVisual({ question }) {
   if (question.visualType === "geometry") {
@@ -1312,7 +1312,7 @@ const createExamQuestion = (topicId, index) => {
 
     return {
       id: `exam-${topicId}-${index}`,
-      topic: "PerÃ­metros y areas",
+      topic: "Perímetros y áreas",
       prompt: buildGeometryExamPrompt(figure, measure, values),
       answerType: "number",
       expected: results[measure],
@@ -1506,7 +1506,7 @@ function MayanDigit({ value }) {
 
 function MayanDisplay({ value }) {
   const digits = toThreeLevelMayanDigits(value);
-  const levelLabels = ["Nivel 3 ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¾Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Â¦Ãƒâ€šÃ‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â¦ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¡ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â· x400", "Nivel 2 ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¾Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Â¦Ãƒâ€šÃ‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â¦ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¡ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â· x20", "Nivel 1 ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¾Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Â¦Ãƒâ€šÃ‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â¦ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¡ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â· x1"];
+  const levelLabels = ["Nivel 3 x400", "Nivel 2 x20", "Nivel 1 x1"];
 
   return (
     <div className="mayan-display" aria-label={`Numero maya para ${value}`}>
@@ -1719,8 +1719,8 @@ function GeometrySection({ onCelebrate, isCelebrating }) {
     <section className="page-section">
       <SectionHeader
         eyebrow="Geometría"
-        title="PerÃ­metros y areas"
-        description="Trabaja una figura a la vez. Primero exploras figuras regulares y despues una figura irregular como la del temario."
+        title="Perímetros y áreas"
+        description="Trabaja una figura a la vez. Primero exploras figuras regulares y después una figura irregular como la del temario."
       />
 
       <div className="selector-row">
@@ -2390,7 +2390,7 @@ function AlgorithmsSection({ onCelebrate, isCelebrating }) {
             </p>
           </div>
           <div className="info-box">
-            <h3>Por qué es importante comprobar?</h3>
+            <h3>¿Por qué es importante comprobar?</h3>
             <p>Comprobar ayuda a detectar errores de signo, acomodo de decimales y cuentas mal hechas antes de entregar el ejercicio.</p>
           </div>
         </article>
@@ -2483,14 +2483,14 @@ function NotationSection({ onCelebrate, isCelebrating }) {
       <SectionHeader
         eyebrow="Valor posicional"
         title="Notación desarrollada"
-        description="Descompone números decimales y observa que cada cifra tiene un valor según su posici?n."
+        description="Descompone números decimales y observa que cada cifra tiene un valor según su posición."
       />
       <div className="lesson-grid">
         <article className="panel-card">
           <SectionHeader
             eyebrow="Explorador"
             title="Desarrolla un número decimal"
-            description="Escribe un número con hasta cuatro decimales y mira su expansi?n."
+            description="Escribe un número con hasta cuatro decimales y mira su expansión."
           />
           <label className="field-card narrow-field">
             <span>Numero decimal</span>
@@ -2533,13 +2533,13 @@ function NotationSection({ onCelebrate, isCelebrating }) {
             <div className="info-box">
               <h3>Pregunta</h3>
               <p>
-                Cuál es el valor de la cifra {challengeParts.digits[challenge.placeIndex]} en la posici?n
+                ¿Cuál es el valor de la cifra {challengeParts.digits[challenge.placeIndex]} en la posición
                 {" "}
                 {decimalPlaceLabels[challenge.placeIndex].label.toLowerCase()}?
               </p>
             </div>
             <label className="field-card">
-              <span>Tu respuestá</span>
+              <span>Tu respuesta</span>
               <input
                 type="text"
                 value={challenge.answer}
@@ -2692,7 +2692,7 @@ function SequencesSection({ onCelebrate, isCelebrating }) {
             <div className="challenge-head">
               <div>
                 <p className="eyebrow">Decimales</p>
-                <h3>Qué sigue?</h3>
+              <h3>¿Qué sigue?</h3>
               </div>
               <button type="button" className="secondary-button" onClick={() => setChallenge(createSequenceChallenge())}>
                 Nuevo reto
@@ -2985,7 +2985,7 @@ function MayanSection({ onCelebrate, isCelebrating }) {
         <article className="panel-card">
           <SectionHeader
             eyebrow="Reto"
-            title="Qué número ves?"
+            title="¿Qué número ves?"
             description="Observa el número maya y escribe su valor decimal."
           />
           <div className="challenge-card">
@@ -3841,6 +3841,7 @@ function App() {
 }
 
 export default App;
+
 
 
 
