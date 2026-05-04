@@ -1,10 +1,18 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import katex from "katex";
+
+const isElenaMode = import.meta.env.ELENA === "true";
+const appTitle = isElenaMode ? "Temario Bloque III para Elenukis" : "Temario Bloque III";
 
 const sectionItems = [
-  { id: "home", label: "Temario Bloque III para Elenukis" },
+  { id: "home", label: appTitle },
+  { id: "algorithms", label: "Resolver algoritmos" },
+  { id: "notation", label: "Notacion desarrollada" },
   { id: "geometry", label: "Perimetros y areas" },
   { id: "percentages", label: "Porcentajes" },
   { id: "rule-of-three", label: "Regla de tres" },
+  { id: "sequences", label: "Sucesiones" },
+  { id: "fractions", label: "Fracciones" },
   { id: "mayan", label: "Numeros mayas" },
   { id: "measures", label: "Medidas de capacidad" },
   { id: "decimals", label: "Decimales" }
@@ -25,6 +33,18 @@ const syllabusItems = [
 
 const moduleCards = [
   {
+    id: "algorithms",
+    title: "Resolver algoritmos",
+    description:
+      "Practica suma, resta, multiplicacion y division con enteros y decimales, y aprende a comprobar cada operacion."
+  },
+  {
+    id: "notation",
+    title: "Notacion desarrollada",
+    description:
+      "Descompone numeros decimales y entiende el valor posicional de cada cifra."
+  },
+  {
     id: "geometry",
     title: "Perimetros y areas",
     description:
@@ -41,6 +61,18 @@ const moduleCards = [
     title: "Regla de tres",
     description:
       "Aprende a plantear proporciones y a usarlas para calcular porcentajes paso a paso."
+  },
+  {
+    id: "sequences",
+    title: "Sucesiones",
+    description:
+      "Crea sucesiones con enteros y fracciones, y descubre la constante que las hace crecer o disminuir."
+  },
+  {
+    id: "fractions",
+    title: "Fracciones",
+    description:
+      "Resuelve suma y resta de fracciones propias, impropias y mixtas con explicacion paso a paso."
   },
   {
     id: "mayan",
@@ -64,7 +96,7 @@ const moduleCards = [
 
 const syllabusStorageKey = "block-iii-syllabus-checks";
 const gamificationStorageKey = "block-iii-gamification";
-const isElenaMode = import.meta.env.ELENA === "true";
+const piValue = 3.1416;
 
 const celebrationCharacters = [
   { name: "Astro", image: "/astro.webp" },
@@ -78,6 +110,12 @@ const celebrationCharacters = [
   { name: "Gourdy", image: "/gourdy.webp" },
   { name: "Bassie", image: "/bassie.webp" }
 ];
+
+const renderMathToHtml = (expression) =>
+  katex.renderToString(expression, {
+    throwOnError: false,
+    output: "htmlAndMathml"
+  });
 
 const clampInteger = (value, minimum, maximum) => {
   if (value === "") {
@@ -246,6 +284,23 @@ function CelebrationOverlay({ active, imageSrc }) {
   );
 }
 
+function MathInline({ expression, className = "" }) {
+  return (
+    <span
+      className={`math-inline ${className}`.trim()}
+      dangerouslySetInnerHTML={{ __html: renderMathToHtml(expression) }}
+    />
+  );
+}
+
+const getReviewButtonState = (status, isCelebrating) => ({
+  disabled: isCelebrating || status === "success",
+  title:
+    status === "success"
+      ? "Debes iniciar un nuevo reto para seguir anotando puntos."
+      : ""
+});
+
 function UnlockToast({ item }) {
   if (!item) {
     return null;
@@ -346,20 +401,20 @@ const geometryFigures = [
     explanation: "El radio va del centro a la orilla. En el circulo redondeamos a 2 decimales.",
     fields: [{ key: "radius", label: "Radio", shortLabel: "radio" }],
     formulas: {
-      perimeter: "P = 2 x pi x radio",
-      area: "A = pi x radio x radio"
+      perimeter: "P = 2 x 3.1416 x radio",
+      area: "A = 3.1416 x radio x radio"
     },
     createChallenge: () => ({ radius: randomInt(1, 20) }),
     calculate(values) {
       return {
-        perimeter: 2 * Math.PI * values.radius,
-        area: Math.PI * values.radius * values.radius
+        perimeter: 2 * piValue * values.radius,
+        area: piValue * values.radius * values.radius
       };
     },
     substitution(values, results) {
       return {
-        perimeter: `P = 2 x pi x ${values.radius} = ${formatNumber(results.perimeter)}`,
-        area: `A = pi x ${values.radius} x ${values.radius} = ${formatNumber(results.area)}`
+        perimeter: `P = 2 x 3.1416 x ${values.radius} = ${formatNumber(results.perimeter)}`,
+        area: `A = 3.1416 x ${values.radius} x ${values.radius} = ${formatNumber(results.area)}`
       };
     },
     renderFigure(values) {
@@ -681,8 +736,445 @@ const ruleOfThreeChallengeFactory = () => ({
   status: "idle"
 });
 
+const buildMayanValue = (topLevel, middleLevel, bottomLevel) =>
+  topLevel * 400 + middleLevel * 20 + bottomLevel;
+
+const createValidMayanValue = () =>
+  buildMayanValue(randomInt(0, 5), randomInt(0, 10), randomInt(0, 19));
+
+const normalizeMayanValue = (value) => {
+  const safeValue = Math.max(0, Number(value) || 0);
+  const topLevel = Math.min(5, Math.floor(safeValue / 400));
+  const remainderAfterTop = safeValue - topLevel * 400;
+  const middleLevel = Math.min(10, Math.floor(remainderAfterTop / 20));
+  const bottomLevel = Math.min(19, remainderAfterTop - middleLevel * 20);
+
+  return buildMayanValue(topLevel, middleLevel, bottomLevel);
+};
+
+const operationLabels = {
+  addition: "Suma",
+  subtraction: "Resta",
+  multiplication: "Multiplicacion",
+  division: "Division"
+};
+
+const operationSymbols = {
+  addition: "+",
+  subtraction: "-",
+  multiplication: "x",
+  division: "÷"
+};
+
+const operationLatexSymbols = {
+  addition: "+",
+  subtraction: "-",
+  multiplication: "\\times",
+  division: "\\div"
+};
+
+const randomDecimal = (minimum, maximum) => roundTo(minimum + Math.random() * (maximum - minimum), 4);
+
+const randomFraction = (allowedDenominators = [2, 3, 4, 5, 6, 8]) => {
+  const denominator =
+    allowedDenominators[randomInt(0, allowedDenominators.length - 1)];
+  const numerator = randomInt(1, denominator * 3);
+
+  return simplifyFraction({ numerator, denominator });
+};
+
+const toMixedFractionString = ({ numerator, denominator }) => {
+  const simplified = simplifyFraction({ numerator, denominator });
+  const whole = Math.trunc(simplified.numerator / simplified.denominator);
+  const remainder = Math.abs(simplified.numerator % simplified.denominator);
+
+  if (remainder === 0) {
+    return String(whole);
+  }
+
+  if (whole === 0) {
+    return `${remainder}/${simplified.denominator}`;
+  }
+
+  return `${whole} ${remainder}/${simplified.denominator}`;
+};
+
+const fractionToLatex = ({ numerator, denominator }) => {
+  const simplified = simplifyFraction({ numerator, denominator });
+  return `\\frac{${simplified.numerator}}{${simplified.denominator}}`;
+};
+
+const mixedFractionToLatex = ({ whole, numerator, denominator }) => {
+  const simplifiedImproper = simplifyFraction(mixedToFraction(whole, numerator, denominator));
+  const normalizedWhole = Math.trunc(simplifiedImproper.numerator / simplifiedImproper.denominator);
+  const remainder = Math.abs(simplifiedImproper.numerator % simplifiedImproper.denominator);
+
+  if (remainder === 0) {
+    return `${normalizedWhole}`;
+  }
+
+  if (normalizedWhole === 0) {
+    return `\\frac{${remainder}}{${simplifiedImproper.denominator}}`;
+  }
+
+  return `${normalizedWhole}\\frac{${remainder}}{${simplifiedImproper.denominator}}`;
+};
+
+const formatMathValue = (value, displayMode) =>
+  displayMode === "fraction" ? toMixedFractionString(value) : formatNumber(value, 4);
+
+const toComparableNumber = (value, displayMode) =>
+  displayMode === "fraction" ? value.numerator / value.denominator : value;
+
+const calculateOperation = (operation, firstValue, secondValue) => {
+  if (operation === "addition") {
+    return firstValue + secondValue;
+  }
+  if (operation === "subtraction") {
+    return firstValue - secondValue;
+  }
+  if (operation === "multiplication") {
+    return firstValue * secondValue;
+  }
+
+  return firstValue / secondValue;
+};
+
+const buildOperationCheck = (operation, firstValue, secondValue, result) => {
+  if (operation === "addition") {
+    return `${formatNumber(result, 4)} - ${formatNumber(secondValue, 4)} = ${formatNumber(firstValue, 4)}`;
+  }
+  if (operation === "subtraction") {
+    return `${formatNumber(result, 4)} + ${formatNumber(secondValue, 4)} = ${formatNumber(firstValue, 4)}`;
+  }
+  if (operation === "multiplication") {
+    return `${formatNumber(result, 4)} ÷ ${formatNumber(secondValue, 4)} = ${formatNumber(firstValue, 4)}`;
+  }
+
+  return `${formatNumber(result, 4)} x ${formatNumber(secondValue, 4)} = ${formatNumber(firstValue, 4)}`;
+};
+
+const buildAlgorithmExercise = (operation) => {
+  const useFractions = Math.random() > 0.5;
+
+  if (!useFractions) {
+    if (operation === "addition") {
+      const firstValue = randomInt(20, 150);
+      const secondValue = randomInt(10, 90);
+      return {
+        operation,
+        displayMode: "integer",
+        firstValue,
+        secondValue,
+        story: `Lucia leyo ${firstValue} paginas el lunes y ${secondValue} paginas el martes. ¿Cuantas paginas leyo en total?`
+      };
+    }
+
+    if (operation === "subtraction") {
+      const firstValue = randomInt(80, 220);
+      const secondValue = randomInt(10, firstValue - 5);
+      return {
+        operation,
+        displayMode: "integer",
+        firstValue,
+        secondValue,
+        story: `En la biblioteca habia ${firstValue} cuentos y prestaron ${secondValue}. ¿Cuantos cuentos quedaron?`
+      };
+    }
+
+    if (operation === "multiplication") {
+      const firstValue = randomInt(3, 15);
+      const secondValue = randomInt(4, 18);
+      return {
+        operation,
+        displayMode: "integer",
+        firstValue,
+        secondValue,
+        story: `Hay ${firstValue} cajas y en cada caja caben ${secondValue} dulces. ¿Cuantos dulces caben en total?`
+      };
+    }
+
+    const secondValue = randomInt(2, 12);
+    const result = randomInt(2, 18);
+    const firstValue = secondValue * result;
+    return {
+      operation,
+      displayMode: "integer",
+      firstValue,
+      secondValue,
+      story: `Pedro tenia ${firstValue} dulces y ${secondValue} cajas para guardar. ¿Cuantos dulces puede almacenar en cada caja si reparte todo por igual?`
+    };
+  }
+
+  if (operation === "addition") {
+    const firstValue = randomFraction();
+    const secondValue = randomFraction();
+    return {
+      operation,
+      displayMode: "fraction",
+      firstValue,
+      secondValue,
+      story: `Mariana camino ${toMixedFractionString(firstValue)} kilometros en la mañana y ${toMixedFractionString(secondValue)} kilometros en la tarde. ¿Cuantos kilometros camino en total?`
+    };
+  }
+
+  if (operation === "subtraction") {
+    let firstValue = randomFraction();
+    let secondValue = randomFraction();
+
+    while (firstValue.numerator / firstValue.denominator <= secondValue.numerator / secondValue.denominator) {
+      firstValue = randomFraction();
+      secondValue = randomFraction();
+    }
+
+    return {
+      operation,
+      displayMode: "fraction",
+      firstValue,
+      secondValue,
+      story: `Sofia tenia ${toMixedFractionString(firstValue)} litros de jugo y uso ${toMixedFractionString(secondValue)} litros. ¿Cuanto jugo le quedo?`
+    };
+  }
+
+  if (operation === "multiplication") {
+    const firstValue = randomFraction([2, 4, 5, 8]);
+    const secondValue = randomInt(2, 9);
+    return {
+      operation,
+      displayMode: "fraction",
+      firstValue,
+      secondValue,
+      story: `Cada cinta mide ${toMixedFractionString(firstValue)} metro y necesitas ${secondValue} cintas iguales. ¿Cuantos metros de cinta necesitas en total?`
+    };
+  }
+
+  const secondValue = randomFraction([2, 3, 4, 5, 6]);
+  const result = randomInt(2, 8);
+  const firstValue = simplifyFraction({
+    numerator: secondValue.numerator * result,
+    denominator: secondValue.denominator
+  });
+
+  return {
+    operation,
+    displayMode: "fraction",
+    firstValue,
+    secondValue,
+    story: `Hay ${toMixedFractionString(firstValue)} litros de agua para llenar recipientes de ${toMixedFractionString(secondValue)} litro cada uno. ¿Cuantos recipientes se llenan por completo?`
+  };
+};
+
+const createAlgorithmChallenge = (operation) => ({
+  ...buildAlgorithmExercise(operation),
+  answer: "",
+  status: "idle"
+});
+
+const decimalPlaceLabels = [
+  { key: "units", label: "Unidades", factor: 1 },
+  { key: "tenths", label: "Decimos", factor: 0.1 },
+  { key: "hundredths", label: "Centesimos", factor: 0.01 },
+  { key: "thousandths", label: "Milesimos", factor: 0.001 },
+  { key: "tenThousandths", label: "Diezmilesimos", factor: 0.0001 }
+];
+
+const getFixedDecimalDigits = (value) => {
+  const fixedValue = Number(value).toFixed(4);
+  const [units, decimals] = fixedValue.split(".");
+  return {
+    text: fixedValue,
+    digits: [Number(units), ...decimals.split("").map(Number)]
+  };
+};
+
+const buildExpandedNotation = (value) => {
+  const { digits } = getFixedDecimalDigits(value);
+
+  return decimalPlaceLabels
+    .map((place, index) => {
+      const digit = digits[index];
+
+      if (digit === 0) {
+        return null;
+      }
+
+      return `${digit} x ${place.factor}`;
+    })
+    .filter(Boolean)
+    .join(" + ");
+};
+
+const createNotationChallenge = () => {
+  const value = randomDecimal(1, 99);
+  const placeIndex = randomInt(0, decimalPlaceLabels.length - 1);
+  const { digits } = getFixedDecimalDigits(value);
+
+  return {
+    value,
+    placeIndex,
+    answer: "",
+    status: "idle",
+    expected: roundTo(digits[placeIndex] * decimalPlaceLabels[placeIndex].factor, 4)
+  };
+};
+
+const gcd = (firstValue, secondValue) => {
+  let a = Math.abs(firstValue);
+  let b = Math.abs(secondValue);
+
+  while (b !== 0) {
+    [a, b] = [b, a % b];
+  }
+
+  return a || 1;
+};
+
+const lcm = (firstValue, secondValue) => Math.abs(firstValue * secondValue) / gcd(firstValue, secondValue);
+
+const simplifyFraction = ({ numerator, denominator }) => {
+  if (numerator === 0) {
+    return { numerator: 0, denominator: 1 };
+  }
+
+  const divisor = gcd(numerator, denominator);
+  const normalizedDenominator = denominator / divisor;
+  const normalizedNumerator = numerator / divisor;
+
+  return {
+    numerator: normalizedDenominator < 0 ? -normalizedNumerator : normalizedNumerator,
+    denominator: Math.abs(normalizedDenominator)
+  };
+};
+
+const fractionToString = ({ numerator, denominator }) => {
+  const simplified = simplifyFraction({ numerator, denominator });
+  return `${simplified.numerator}/${simplified.denominator}`;
+};
+
+const mixedToFraction = (whole, numerator, denominator) => ({
+  numerator: whole * denominator + numerator,
+  denominator
+});
+
+const formatFractionMath = (fraction) => {
+  const simplified = simplifyFraction(fraction);
+  return `${simplified.numerator}/${simplified.denominator}`;
+};
+
+const createSequenceTerms = (type, start, step) => {
+  if (type === "integer") {
+    return Array.from({ length: 5 }, (_, index) => start + step * index);
+  }
+
+  return Array.from({ length: 5 }, (_, index) => ({
+    numerator: start.numerator + step.numerator * index,
+    denominator: start.denominator
+  }));
+};
+
+const createSequenceChallenge = () => {
+  const type = Math.random() > 0.5 ? "integer" : "fraction";
+
+  if (type === "integer") {
+    const start = randomInt(1, 25);
+    const step = randomInt(1, 8);
+    return {
+      type,
+      start,
+      step,
+      answer: "",
+      constantAnswer: "",
+      status: "idle"
+    };
+  }
+
+  const denominator = [2, 3, 4, 5, 6, 8][randomInt(0, 5)];
+  const start = { numerator: randomInt(1, denominator * 2), denominator };
+  const step = { numerator: randomInt(1, denominator), denominator };
+
+  return {
+    type,
+    start,
+    step,
+    answer: "",
+    constantAnswer: "",
+    status: "idle"
+  };
+};
+
+const parseFractionString = (value) => {
+  const cleanValue = String(value).trim();
+
+  if (!cleanValue) {
+    return null;
+  }
+
+  if (cleanValue.includes("/")) {
+    const [numerator, denominator] = cleanValue.split("/").map((item) => Number(item.trim()));
+
+    if (!Number.isFinite(numerator) || !Number.isFinite(denominator) || denominator === 0) {
+      return null;
+    }
+
+    return simplifyFraction({ numerator, denominator });
+  }
+
+  const numericValue = Number(cleanValue.replace(",", "."));
+
+  if (!Number.isFinite(numericValue)) {
+    return null;
+  }
+
+  return simplifyFraction({ numerator: numericValue, denominator: 1 });
+};
+
+const areFractionsEqual = (firstFraction, secondFraction) =>
+  firstFraction && secondFraction &&
+  simplifyFraction(firstFraction).numerator === simplifyFraction(secondFraction).numerator &&
+  simplifyFraction(firstFraction).denominator === simplifyFraction(secondFraction).denominator;
+
+const createFractionChallenge = () => {
+  const operation = Math.random() > 0.5 ? "addition" : "subtraction";
+  const denominatorA = [2, 3, 4, 5, 6, 8][randomInt(0, 5)];
+  const denominatorB = [2, 3, 4, 5, 6, 8][randomInt(0, 5)];
+  const first = {
+    whole: randomInt(0, 2),
+    numerator: randomInt(1, denominatorA),
+    denominator: denominatorA
+  };
+  const second = {
+    whole: randomInt(0, 2),
+    numerator: randomInt(1, denominatorB),
+    denominator: denominatorB
+  };
+
+  const firstImproper = mixedToFraction(first.whole, first.numerator, first.denominator);
+  let secondImproper = mixedToFraction(second.whole, second.numerator, second.denominator);
+
+  if (
+    operation === "subtraction" &&
+    firstImproper.numerator / firstImproper.denominator <
+      secondImproper.numerator / secondImproper.denominator
+  ) {
+    secondImproper = {
+      numerator: Math.max(1, firstImproper.numerator - 1),
+      denominator: firstImproper.denominator
+    };
+  }
+
+  return {
+    operation,
+    first,
+    second: secondImproper.denominator === second.denominator
+      ? second
+      : { whole: 0, numerator: secondImproper.numerator, denominator: secondImproper.denominator },
+    answer: "",
+    status: "idle"
+  };
+};
+
 const mayanChallengeFactory = () => ({
-  value: randomInt(0, 399),
+  value: createValidMayanValue(),
   answer: "",
   status: "idle"
 });
@@ -721,21 +1213,22 @@ const decimalChallengeFactory = () => ({
 const compareValues = (leftValue, rightValue, direction) =>
   direction === "ascending" ? leftValue - rightValue : rightValue - leftValue;
 
-const toMayanDigits = (value) => {
-  const digits = [];
-  let pendingValue = value;
+const toThreeLevelMayanDigits = (value) => {
+  const topLevel = Math.floor(value / 400);
+  const remainderAfterTop = value % 400;
+  const middleLevel = Math.floor(remainderAfterTop / 20);
+  const bottomLevel = remainderAfterTop % 20;
 
-  do {
-    digits.push(pendingValue % 20);
-    pendingValue = Math.floor(pendingValue / 20);
-  } while (pendingValue > 0);
-
-  return digits.reverse();
+  return [topLevel, middleLevel, bottomLevel];
 };
 
 function MayanDigit({ value }) {
   if (value === 0) {
-    return <div className="mayan-shell">0</div>;
+    return (
+      <div className="mayan-shell">
+        <img src="/concha.png" alt="Concha maya para cero" className="mayan-shell-image" />
+      </div>
+    );
   }
 
   const bars = Math.floor(value / 5);
@@ -758,12 +1251,14 @@ function MayanDigit({ value }) {
 }
 
 function MayanDisplay({ value }) {
-  const digits = toMayanDigits(value);
+  const digits = toThreeLevelMayanDigits(value);
+  const levelLabels = ["Nivel 3 · x400", "Nivel 2 · x20", "Nivel 1 · x1"];
 
   return (
     <div className="mayan-display" aria-label={`Numero maya para ${value}`}>
       {digits.map((digit, index) => (
         <div key={`${value}-${index}`} className="mayan-level">
+          <span className="mayan-level-label">{levelLabels[index]}</span>
           <MayanDigit value={digit} />
         </div>
       ))}
@@ -792,8 +1287,7 @@ function HomeSection({ onNavigate, checkedItems, onToggleItem }) {
         <article className="panel-card">
           <SectionHeader
             eyebrow="Temario del examen"
-            title="Lo que viene en el parcial"
-            description="El listado se muestra con el mismo sentido del PDF para que la portada sea una guia de estudio."
+            description="El listado se muestra con el mismo sentido del PDF para que la portada sea una guia de estudio. Puedes marcar la casilla para llevar tu avance"
           />
           <ol className="syllabus-list">
             {syllabusItems.map((item, index) => (
@@ -1010,6 +1504,11 @@ function GeometrySection({ onCelebrate, isCelebrating }) {
               <p>{activeFigure.formulas.area}</p>
             </div>
           </div>
+          {activeFigure.id === "circle" && (
+            <div className="pi-helper">
+              Ayuda: para este tema usamos pi = 3.1416.
+            </div>
+          )}
         </article>
 
         <article className="panel-card">
@@ -1072,6 +1571,7 @@ function GeometrySection({ onCelebrate, isCelebrating }) {
                 .map((field) => `${field.shortLabel}: ${activeChallenge.values[field.key]}`)
                 .join(", ")}
               .
+              {activeFigure.id === "circle" ? " Recuerda usar pi = 3.1416." : ""}
             </p>
             <div className="challenge-inputs">
               <label className="field-card">
@@ -1099,7 +1599,7 @@ function GeometrySection({ onCelebrate, isCelebrating }) {
               type="button"
               className="primary-button"
               onClick={validateRegularChallenge}
-              disabled={isCelebrating}
+              {...getReviewButtonState(activeChallenge.status, isCelebrating)}
             >
               Revisar respuesta
             </button>
@@ -1215,7 +1715,7 @@ function GeometrySection({ onCelebrate, isCelebrating }) {
               type="button"
               className="primary-button"
               onClick={validateIrregularChallenge}
-              disabled={isCelebrating}
+              {...getReviewButtonState(irregularChallenge.status, isCelebrating)}
             >
               Revisar respuesta
             </button>
@@ -1351,7 +1851,7 @@ function PercentagesSection({ onCelebrate, isCelebrating }) {
               type="button"
               className="primary-button"
               onClick={validateChallenge}
-              disabled={isCelebrating}
+              {...getReviewButtonState(challenge.status, isCelebrating)}
             >
               Revisar respuesta
             </button>
@@ -1502,7 +2002,7 @@ function RuleOfThreeSection({ onCelebrate, isCelebrating }) {
               type="button"
               className="primary-button"
               onClick={validateChallenge}
-              disabled={isCelebrating}
+              {...getReviewButtonState(challenge.status, isCelebrating)}
             >
               Revisar respuesta
             </button>
@@ -1523,15 +2023,641 @@ function RuleOfThreeSection({ onCelebrate, isCelebrating }) {
   );
 }
 
+function AlgorithmsSection({ onCelebrate, isCelebrating }) {
+  const [operation, setOperation] = useState("addition");
+  const [exampleExercise, setExampleExercise] = useState(() => buildAlgorithmExercise("addition"));
+  const [challenge, setChallenge] = useState(() => createAlgorithmChallenge("addition"));
+
+  useEffect(() => {
+    setExampleExercise(buildAlgorithmExercise(operation));
+    setChallenge(createAlgorithmChallenge(operation));
+  }, [operation]);
+
+  const exampleFirst = toComparableNumber(exampleExercise.firstValue, exampleExercise.displayMode);
+  const exampleSecond = toComparableNumber(exampleExercise.secondValue, exampleExercise.displayMode);
+  const result = calculateOperation(operation, exampleFirst, exampleSecond);
+  const challengeFirst = toComparableNumber(challenge.firstValue, challenge.displayMode);
+  const challengeSecond = toComparableNumber(challenge.secondValue, challenge.displayMode);
+  const challengeResult = calculateOperation(challenge.operation, challengeFirst, challengeSecond);
+
+  const validateChallenge = () => {
+    const fractionAnswer = parseFractionString(challenge.answer);
+    const numericAnswer = parseAnswer(challenge.answer);
+    const success =
+      challenge.displayMode === "fraction"
+        ? fractionAnswer !== null &&
+          Math.abs(
+            fractionAnswer.numerator / fractionAnswer.denominator - challengeResult
+          ) <= 0.0001
+        : Math.abs(numericAnswer - challengeResult) <= 0.0001;
+
+    setChallenge((currentState) => ({
+      ...currentState,
+      status: success ? "success" : "error"
+    }));
+
+    if (success) {
+      onCelebrate("#ff7a59");
+    }
+  };
+
+  return (
+    <section className="page-section">
+      <SectionHeader
+        eyebrow="Operaciones"
+        title="Resolver algoritmos"
+        description="Practica suma, resta, multiplicacion y division con enteros positivos y decimales hasta diezmilesimos, y comprueba por que tu resultado es correcto."
+      />
+      <div className="lesson-grid">
+        <article className="panel-card">
+          <SectionHeader
+            eyebrow="Calculadora guiada"
+            title="Elige una operacion"
+            description="Puedes cambiar la operacion y ver su comprobacion para entender la importancia de revisar tu trabajo."
+          />
+          <div className="selector-row">
+            {Object.entries(operationLabels).map(([key, label]) => (
+              <button
+                key={key}
+                type="button"
+                className={`topic-pill neutral-pill ${operation === key ? "is-active" : ""}`}
+                onClick={() => setOperation(key)}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+          <div className="challenge-head">
+            <div className="info-box">
+              <h3>Problema matematico</h3>
+              <p>{exampleExercise.story}</p>
+            </div>
+            <button
+              type="button"
+              className="secondary-button"
+              onClick={() => setExampleExercise(buildAlgorithmExercise(operation))}
+            >
+              Nuevo ejemplo
+            </button>
+          </div>
+          <div className="result-card">
+            <h3>Resultado</h3>
+            <strong>{formatNumber(result, 4)}</strong>
+          </div>
+          <div className="substitution-card">
+            <h3>Algoritmo</h3>
+            <p>
+              <span>Operacion:</span>{" "}
+              {exampleExercise.displayMode === "fraction" ? (
+                <MathInline
+                  expression={`${fractionToLatex(exampleExercise.firstValue)} ${
+                    operationLatexSymbols[operation]
+                  } ${
+                    typeof exampleExercise.secondValue === "number"
+                      ? exampleExercise.secondValue
+                      : fractionToLatex(exampleExercise.secondValue)
+                  } = ${formatNumber(result, 4)}`}
+                />
+              ) : (
+                <>
+                  {formatMathValue(exampleExercise.firstValue, exampleExercise.displayMode)}{" "}
+                  {operationSymbols[operation]}{" "}
+                  {formatMathValue(exampleExercise.secondValue, exampleExercise.displayMode)} = {formatNumber(result, 4)}
+                </>
+              )}
+            </p>
+            <p>
+              <span>Comprobacion:</span> {buildOperationCheck(operation, exampleFirst, exampleSecond, result)}
+            </p>
+          </div>
+          <div className="info-box">
+            <h3>Por que es importante comprobar?</h3>
+            <p>Comprobar ayuda a detectar errores de signo, acomodo de decimales y cuentas mal hechas antes de entregar el ejercicio.</p>
+          </div>
+        </article>
+
+        <article className="panel-card">
+          <SectionHeader
+            eyebrow="Reto"
+            title="Resuelve el algoritmo"
+            description="Haz la operacion y luego piensa como la comprobarias."
+          />
+          <div className="challenge-card">
+            <div className="challenge-head">
+              <div>
+                <p className="eyebrow">{operationLabels[challenge.operation]}</p>
+                <h3>Resuelve el problema</h3>
+              </div>
+              <button
+                type="button"
+                className="secondary-button"
+                onClick={() => setChallenge(createAlgorithmChallenge(operation))}
+              >
+                Nuevo reto
+              </button>
+            </div>
+            <div className="info-box">
+              <h3>Problema</h3>
+              <p>{challenge.story}</p>
+            </div>
+            <label className="field-card">
+              <span>Tu respuesta</span>
+              <input
+                type="text"
+                value={challenge.answer}
+                onChange={(event) =>
+                  setChallenge((currentState) => ({
+                    ...currentState,
+                    answer: event.target.value,
+                    status: "idle"
+                  }))
+                }
+              />
+            </label>
+            <button
+              type="button"
+              className="primary-button"
+              onClick={validateChallenge}
+              {...getReviewButtonState(challenge.status, isCelebrating)}
+            >
+              Revisar respuesta
+            </button>
+            {challenge.status === "success" && (
+              <p className="feedback success-message">
+                Correcto. La comprobacion seria: {buildOperationCheck(challenge.operation, challengeFirst, challengeSecond, challengeResult)}
+              </p>
+            )}
+            {challenge.status === "error" && (
+              <p className="feedback error-message">
+                Revisa el acomodo de los decimales y usa la comprobacion para verificar tu resultado.
+              </p>
+            )}
+          </div>
+        </article>
+      </div>
+    </section>
+  );
+}
+
+function NotationSection({ onCelebrate, isCelebrating }) {
+  const [numberValue, setNumberValue] = useState(12.3045);
+  const [challenge, setChallenge] = useState(createNotationChallenge);
+  const notationParts = getFixedDecimalDigits(numberValue);
+  const challengeParts = getFixedDecimalDigits(challenge.value);
+
+  const validateChallenge = () => {
+    const success = Math.abs(parseAnswer(challenge.answer) - challenge.expected) <= 0.0001;
+
+    setChallenge((currentState) => ({
+      ...currentState,
+      status: success ? "success" : "error"
+    }));
+
+    if (success) {
+      onCelebrate("#6a67ff");
+    }
+  };
+
+  return (
+    <section className="page-section">
+      <SectionHeader
+        eyebrow="Valor posicional"
+        title="Notacion desarrollada"
+        description="Descompone numeros decimales y observa que cada cifra tiene un valor segun su posicion."
+      />
+      <div className="lesson-grid">
+        <article className="panel-card">
+          <SectionHeader
+            eyebrow="Explorador"
+            title="Desarrolla un numero decimal"
+            description="Escribe un numero con hasta cuatro decimales y mira su expansion."
+          />
+          <label className="field-card narrow-field">
+            <span>Numero decimal</span>
+            <input
+              type="number"
+              step="0.0001"
+              value={numberValue}
+              onChange={(event) => setNumberValue(clampDecimal(event.target.value, 0, 9999))}
+            />
+          </label>
+          <div className="number-strip">
+            {notationParts.digits.map((digit, index) => (
+              <span key={`${digit}-${index}`}>{decimalPlaceLabels[index].label}: {digit}</span>
+            ))}
+          </div>
+          <div className="substitution-card">
+            <h3>Notacion desarrollada</h3>
+            <p>
+              <span>Expansion:</span> {buildExpandedNotation(numberValue)}
+            </p>
+          </div>
+        </article>
+
+        <article className="panel-card">
+          <SectionHeader
+            eyebrow="Reto"
+            title="Identifica el valor posicional"
+            description="Encuentra cuanto vale la cifra marcada segun su lugar en el numero."
+          />
+          <div className="challenge-card">
+            <div className="challenge-head">
+              <div>
+                <p className="eyebrow">Numero</p>
+                <h3>{challengeParts.text}</h3>
+              </div>
+              <button type="button" className="secondary-button" onClick={() => setChallenge(createNotationChallenge())}>
+                Nuevo reto
+              </button>
+            </div>
+            <div className="info-box">
+              <h3>Pregunta</h3>
+              <p>
+                Cual es el valor de la cifra {challengeParts.digits[challenge.placeIndex]} en la posicion
+                {" "}
+                {decimalPlaceLabels[challenge.placeIndex].label.toLowerCase()}?
+              </p>
+            </div>
+            <label className="field-card">
+              <span>Tu respuesta</span>
+              <input
+                type="text"
+                value={challenge.answer}
+                onChange={(event) =>
+                  setChallenge((currentState) => ({
+                    ...currentState,
+                    answer: event.target.value,
+                    status: "idle"
+                  }))
+                }
+              />
+            </label>
+            <button
+              type="button"
+              className="primary-button"
+              onClick={validateChallenge}
+              {...getReviewButtonState(challenge.status, isCelebrating)}
+            >
+              Revisar respuesta
+            </button>
+            {challenge.status === "success" && (
+              <p className="feedback success-message">
+                Correcto. Su valor es {formatNumber(challenge.expected, 4)}.
+              </p>
+            )}
+            {challenge.status === "error" && (
+              <p className="feedback error-message">
+                Revisa en que columna esta la cifra: unidades, decimos, centesimos, milesimos o diezmilesimos.
+              </p>
+            )}
+          </div>
+        </article>
+      </div>
+    </section>
+  );
+}
+
+function SequencesSection({ onCelebrate, isCelebrating }) {
+  const [sequenceType, setSequenceType] = useState("integer");
+  const [startValue, setStartValue] = useState(4);
+  const [stepValue, setStepValue] = useState(3);
+  const [fractionStart, setFractionStart] = useState({ numerator: 1, denominator: 4 });
+  const [fractionStep, setFractionStep] = useState({ numerator: 1, denominator: 4 });
+  const [challenge, setChallenge] = useState(createSequenceChallenge);
+
+  const practiceTerms =
+    sequenceType === "integer"
+      ? createSequenceTerms("integer", startValue, stepValue)
+      : createSequenceTerms("fraction", fractionStart, fractionStep);
+  const challengeTerms = createSequenceTerms(challenge.type, challenge.start, challenge.step);
+  const challengeExpectedNext = challengeTerms[challengeTerms.length - 1];
+  const challengeExpectedConstant = challenge.step;
+
+  const validateChallenge = () => {
+    const answerOk =
+      challenge.type === "integer"
+        ? Number(challenge.answer) === challengeExpectedNext
+        : areFractionsEqual(parseFractionString(challenge.answer), challengeExpectedNext);
+    const constantOk =
+      challenge.type === "integer"
+        ? Number(challenge.constantAnswer) === challengeExpectedConstant
+        : areFractionsEqual(parseFractionString(challenge.constantAnswer), challengeExpectedConstant);
+    const success = answerOk && constantOk;
+
+    setChallenge((currentState) => ({
+      ...currentState,
+      status: success ? "success" : "error"
+    }));
+
+    if (success) {
+      onCelebrate("#00a6a6");
+    }
+  };
+
+  return (
+    <section className="page-section">
+      <SectionHeader
+        eyebrow="Patrones"
+        title="Sucesiones"
+        description="Observa como una regla constante hace crecer o disminuir una sucesion con enteros o fracciones."
+      />
+      <div className="lesson-grid">
+        <article className="panel-card">
+          <SectionHeader
+            eyebrow="Practica"
+            title="Construye una sucesion"
+            description="Elige enteros o fracciones y observa la constante."
+          />
+          <div className="selector-row">
+            <button type="button" className={`topic-pill neutral-pill ${sequenceType === "integer" ? "is-active" : ""}`} onClick={() => setSequenceType("integer")}>
+              Enteros
+            </button>
+            <button type="button" className={`topic-pill neutral-pill ${sequenceType === "fraction" ? "is-active" : ""}`} onClick={() => setSequenceType("fraction")}>
+              Fracciones
+            </button>
+          </div>
+          {sequenceType === "integer" ? (
+            <div className="input-grid">
+              <label className="field-card">
+                <span>Inicio</span>
+                <input type="number" value={startValue} onChange={(event) => setStartValue(clampInteger(event.target.value, 0, 99))} />
+              </label>
+              <label className="field-card">
+                <span>Constante</span>
+                <input type="number" value={stepValue} onChange={(event) => setStepValue(clampInteger(event.target.value, -20, 20))} />
+              </label>
+            </div>
+          ) : (
+            <div className="input-grid">
+              <label className="field-card">
+                <span>Inicio numerador</span>
+                <input type="number" value={fractionStart.numerator} onChange={(event) => setFractionStart((current) => ({ ...current, numerator: clampInteger(event.target.value, 0, 20) }))} />
+              </label>
+              <label className="field-card">
+                <span>Inicio denominador</span>
+                <input type="number" value={fractionStart.denominator} onChange={(event) => setFractionStart((current) => ({ ...current, denominator: clampInteger(event.target.value, 1, 12) }))} />
+              </label>
+              <label className="field-card">
+                <span>Constante numerador</span>
+                <input type="number" value={fractionStep.numerator} onChange={(event) => setFractionStep((current) => ({ ...current, numerator: clampInteger(event.target.value, -10, 10) }))} />
+              </label>
+              <label className="field-card">
+                <span>Constante denominador</span>
+                <input type="number" value={fractionStep.denominator} onChange={(event) => setFractionStep((current) => ({ ...current, denominator: clampInteger(event.target.value, 1, 12) }))} />
+              </label>
+            </div>
+          )}
+          <div className="number-strip">
+            {practiceTerms.map((term, index) => (
+              <span key={index}>
+                {sequenceType === "integer" ? term : <MathInline expression={fractionToLatex(term)} />}
+              </span>
+            ))}
+          </div>
+          <div className="substitution-card">
+            <h3>Constante</h3>
+            <p>
+              <span>Regla:</span>{" "}
+              {sequenceType === "integer"
+                ? `sumar ${stepValue} cada vez`
+                : `sumar ${formatFractionMath(fractionStep)} cada vez`}
+            </p>
+          </div>
+        </article>
+
+        <article className="panel-card">
+          <SectionHeader eyebrow="Reto" title="Encuentra el siguiente termino" description="Descubre el siguiente termino y la constante de la sucesion." />
+          <div className="challenge-card">
+            <div className="challenge-head">
+              <div>
+                <p className="eyebrow">{challenge.type === "integer" ? "Enteros" : "Fracciones"}</p>
+                <h3>Que sigue?</h3>
+              </div>
+              <button type="button" className="secondary-button" onClick={() => setChallenge(createSequenceChallenge())}>
+                Nuevo reto
+              </button>
+            </div>
+            <div className="number-strip">
+              {challengeTerms.slice(0, 4).map((term, index) => (
+                <span key={index}>
+                  {challenge.type === "integer" ? term : <MathInline expression={fractionToLatex(term)} />}
+                </span>
+              ))}
+              <span>?</span>
+            </div>
+            <div className="challenge-inputs">
+              <label className="field-card">
+                <span>Siguiente termino</span>
+                <input type="text" value={challenge.answer} onChange={(event) => setChallenge((currentState) => ({ ...currentState, answer: event.target.value, status: "idle" }))} />
+              </label>
+              <label className="field-card">
+                <span>Constante</span>
+                <input type="text" value={challenge.constantAnswer} onChange={(event) => setChallenge((currentState) => ({ ...currentState, constantAnswer: event.target.value, status: "idle" }))} />
+              </label>
+            </div>
+            <button
+              type="button"
+              className="primary-button"
+              onClick={validateChallenge}
+              {...getReviewButtonState(challenge.status, isCelebrating)}
+            >
+              Revisar respuesta
+            </button>
+            {challenge.status === "success" && (
+              <p className="feedback success-message">Excelente. Ya identificaste el siguiente termino y la constante.</p>
+            )}
+            {challenge.status === "error" && (
+              <p className="feedback error-message">Revisa cuanto cambia cada termino respecto al anterior.</p>
+            )}
+          </div>
+        </article>
+      </div>
+    </section>
+  );
+}
+
+function FractionsSection({ onCelebrate, isCelebrating }) {
+  const [operation, setOperation] = useState("addition");
+  const [firstFraction, setFirstFraction] = useState({ whole: 1, numerator: 1, denominator: 2 });
+  const [secondFraction, setSecondFraction] = useState({ whole: 0, numerator: 3, denominator: 4 });
+  const [challenge, setChallenge] = useState(createFractionChallenge);
+
+  const firstImproper = mixedToFraction(firstFraction.whole, firstFraction.numerator, firstFraction.denominator);
+  const secondImproper = mixedToFraction(secondFraction.whole, secondFraction.numerator, secondFraction.denominator);
+  const commonDenominator = lcm(firstImproper.denominator, secondImproper.denominator);
+  const scaledFirst = {
+    numerator: firstImproper.numerator * (commonDenominator / firstImproper.denominator),
+    denominator: commonDenominator
+  };
+  const scaledSecond = {
+    numerator: secondImproper.numerator * (commonDenominator / secondImproper.denominator),
+    denominator: commonDenominator
+  };
+  const resultFraction = simplifyFraction({
+    numerator:
+      operation === "addition"
+        ? scaledFirst.numerator + scaledSecond.numerator
+        : scaledFirst.numerator - scaledSecond.numerator,
+    denominator: commonDenominator
+  });
+
+  const challengeFirst = mixedToFraction(
+    challenge.first.whole,
+    challenge.first.numerator,
+    challenge.first.denominator
+  );
+  const challengeSecond = mixedToFraction(
+    challenge.second.whole,
+    challenge.second.numerator,
+    challenge.second.denominator
+  );
+  const challengeDenominator = lcm(challengeFirst.denominator, challengeSecond.denominator);
+  const challengeResult = simplifyFraction({
+    numerator:
+      challenge.operation === "addition"
+        ? challengeFirst.numerator * (challengeDenominator / challengeFirst.denominator) +
+          challengeSecond.numerator * (challengeDenominator / challengeSecond.denominator)
+        : challengeFirst.numerator * (challengeDenominator / challengeFirst.denominator) -
+          challengeSecond.numerator * (challengeDenominator / challengeSecond.denominator),
+    denominator: challengeDenominator
+  });
+
+  const validateChallenge = () => {
+    const success = areFractionsEqual(parseFractionString(challenge.answer), challengeResult);
+
+    setChallenge((currentState) => ({
+      ...currentState,
+      status: success ? "success" : "error"
+    }));
+
+    if (success) {
+      onCelebrate("#4caf50");
+    }
+  };
+
+  return (
+    <section className="page-section">
+      <SectionHeader
+        eyebrow="Fracciones"
+        title="Suma y resta de fracciones"
+        description="Trabaja con fracciones propias, impropias y mixtas. Primero conviertes, luego igualas denominadores y al final simplificas."
+      />
+      <div className="lesson-grid">
+        <article className="panel-card">
+          <SectionHeader eyebrow="Practica guiada" title="Arma dos fracciones" description="Si el numero entero es mayor que cero, la fraccion se vuelve mixta." />
+          <div className="selector-row">
+            <button type="button" className={`topic-pill neutral-pill ${operation === "addition" ? "is-active" : ""}`} onClick={() => setOperation("addition")}>
+              Suma
+            </button>
+            <button type="button" className={`topic-pill neutral-pill ${operation === "subtraction" ? "is-active" : ""}`} onClick={() => setOperation("subtraction")}>
+              Resta
+            </button>
+          </div>
+          <div className="input-grid">
+            <label className="field-card">
+              <span>Primera entera</span>
+              <input type="number" value={firstFraction.whole} onChange={(event) => setFirstFraction((current) => ({ ...current, whole: clampInteger(event.target.value, 0, 5) }))} />
+            </label>
+            <label className="field-card">
+              <span>Primer numerador</span>
+              <input type="number" value={firstFraction.numerator} onChange={(event) => setFirstFraction((current) => ({ ...current, numerator: clampInteger(event.target.value, 0, 12) }))} />
+            </label>
+            <label className="field-card">
+              <span>Primer denominador</span>
+              <input type="number" value={firstFraction.denominator} onChange={(event) => setFirstFraction((current) => ({ ...current, denominator: clampInteger(event.target.value, 1, 12) }))} />
+            </label>
+            <label className="field-card">
+              <span>Segunda entera</span>
+              <input type="number" value={secondFraction.whole} onChange={(event) => setSecondFraction((current) => ({ ...current, whole: clampInteger(event.target.value, 0, 5) }))} />
+            </label>
+            <label className="field-card">
+              <span>Segundo numerador</span>
+              <input type="number" value={secondFraction.numerator} onChange={(event) => setSecondFraction((current) => ({ ...current, numerator: clampInteger(event.target.value, 0, 12) }))} />
+            </label>
+            <label className="field-card">
+              <span>Segundo denominador</span>
+              <input type="number" value={secondFraction.denominator} onChange={(event) => setSecondFraction((current) => ({ ...current, denominator: clampInteger(event.target.value, 1, 12) }))} />
+            </label>
+          </div>
+          <div className="substitution-card">
+            <h3>Paso a paso</h3>
+            <p>
+              <span>Improprias:</span>{" "}
+              <MathInline
+                expression={`${fractionToLatex(firstImproper)} ${
+                  operation === "addition" ? "+" : "-"
+                } ${fractionToLatex(secondImproper)}`}
+              />
+            </p>
+            <p>
+              <span>Mismo denominador:</span>{" "}
+              <MathInline
+                expression={`${fractionToLatex(scaledFirst)} ${
+                  operation === "addition" ? "+" : "-"
+                } ${fractionToLatex(scaledSecond)}`}
+              />
+            </p>
+            <p>
+              <span>Resultado simplificado:</span>{" "}
+              <MathInline expression={fractionToLatex(resultFraction)} />
+            </p>
+          </div>
+        </article>
+
+        <article className="panel-card">
+          <SectionHeader eyebrow="Reto" title="Resuelve la operacion" description="Escribe tu resultado como fraccion simplificada, por ejemplo 7/4." />
+          <div className="challenge-card">
+            <div className="challenge-head">
+              <div>
+                <p className="eyebrow">{challenge.operation === "addition" ? "Suma" : "Resta"}</p>
+                <h3>
+                  <MathInline
+                    expression={`${mixedFractionToLatex(challenge.first)} ${
+                      challenge.operation === "addition" ? "+" : "-"
+                    } ${mixedFractionToLatex(challenge.second)}`}
+                  />
+                </h3>
+              </div>
+              <button type="button" className="secondary-button" onClick={() => setChallenge(createFractionChallenge())}>
+                Nuevo reto
+              </button>
+            </div>
+            <label className="field-card">
+              <span>Tu respuesta</span>
+              <input type="text" value={challenge.answer} onChange={(event) => setChallenge((currentState) => ({ ...currentState, answer: event.target.value, status: "idle" }))} placeholder="Ejemplo: 7/4" />
+            </label>
+            <button
+              type="button"
+              className="primary-button"
+              onClick={validateChallenge}
+              {...getReviewButtonState(challenge.status, isCelebrating)}
+            >
+              Revisar respuesta
+            </button>
+            {challenge.status === "success" && (
+              <p className="feedback success-message">
+                Correcto. El resultado simplificado es{" "}
+                <MathInline expression={fractionToLatex(challengeResult)} className="math-inline-light" />.
+              </p>
+            )}
+            {challenge.status === "error" && (
+              <p className="feedback error-message">Revisa la conversion a impropias y busca un denominador comun antes de operar.</p>
+            )}
+          </div>
+        </article>
+      </div>
+    </section>
+  );
+}
+
 function MayanSection({ onCelebrate, isCelebrating }) {
   const [decimalValue, setDecimalValue] = useState(37);
   const [challenge, setChallenge] = useState(mayanChallengeFactory);
 
-  const digits = toMayanDigits(decimalValue);
+  const digits = toThreeLevelMayanDigits(decimalValue);
   const expandedText = digits
     .map((digit, index) => {
-      const power = digits.length - index - 1;
-      const multiplier = 20 ** power;
+      const multiplier = index === 0 ? 400 : index === 1 ? 20 : 1;
       return `${digit} x ${multiplier}`;
     })
     .join(" + ");
@@ -1554,7 +2680,7 @@ function MayanSection({ onCelebrate, isCelebrating }) {
       <SectionHeader
         eyebrow="Sistema maya"
         title="Numeros mayas"
-        description="El sistema maya usa puntos, barras y niveles. El nivel de abajo son unidades y el de arriba vale grupos de 20."
+        description="El sistema maya usa puntos, barras, concha para el cero y tres niveles. Abajo van unidades, en medio grupos de 20 y arriba grupos de 400."
       />
 
       <div className="lesson-grid">
@@ -1562,16 +2688,18 @@ function MayanSection({ onCelebrate, isCelebrating }) {
           <SectionHeader
             eyebrow="Explorador"
             title="Escribe un numero decimal"
-            description="Prueba del 0 al 399 para ver como cambia su representacion maya."
+            description="Prueba del 0 al 2219. En esta version usamos tres niveles: abajo hasta 19, en medio hasta 10 y arriba hasta 5."
           />
           <label className="field-card narrow-field">
             <span>Numero decimal</span>
             <input
               type="number"
               min="0"
-              max="399"
+              max="2219"
               value={decimalValue}
-              onChange={(event) => setDecimalValue(clampInteger(event.target.value, 0, 399))}
+              onChange={(event) =>
+                setDecimalValue(normalizeMayanValue(clampInteger(event.target.value, 0, 2219)))
+              }
             />
           </label>
           <div className="mayan-panel">
@@ -1586,7 +2714,9 @@ function MayanSection({ onCelebrate, isCelebrating }) {
           <div className="formula-grid single-column">
             <div className="info-box">
               <h3>Reglas rapidas</h3>
-              <p>Un punto vale 1, una barra vale 5 y los niveles se leen de arriba hacia abajo.</p>
+              <p>Un punto vale 1, una barra vale 5, la concha vale 0 y los niveles se leen de arriba hacia abajo.</p>
+              <p>Nivel 1: de 0 a 19. Nivel 2: de 0 a 10. Nivel 3: de 0 a 5.</p>
+              <p>Si escribes un numero grande, la app lo ajusta a esos limites para mantener el ejemplo dentro de este temario.</p>
             </div>
           </div>
         </article>
@@ -1594,7 +2724,7 @@ function MayanSection({ onCelebrate, isCelebrating }) {
         <article className="panel-card">
           <SectionHeader
             eyebrow="Reto"
-            title="Que numero ves?"
+            title="¿Qué numero ves?"
             description="Observa el numero maya y escribe su valor decimal."
           />
           <div className="challenge-card">
@@ -1619,22 +2749,23 @@ function MayanSection({ onCelebrate, isCelebrating }) {
               <input
                 type="number"
                 min="0"
-                max="399"
+                max="2219"
                 value={challenge.answer}
                 onChange={(event) =>
                   setChallenge((currentState) => ({
                     ...currentState,
                     answer: event.target.value,
                     status: "idle"
-                  }))
+                }))
                 }
+                placeholder="0 a 2219"
               />
             </label>
             <button
               type="button"
               className="primary-button"
               onClick={validateChallenge}
-              disabled={isCelebrating}
+              {...getReviewButtonState(challenge.status, isCelebrating)}
             >
               Revisar respuesta
             </button>
@@ -1806,7 +2937,7 @@ function MeasuresSection({ onCelebrate, isCelebrating }) {
               type="button"
               className="primary-button"
               onClick={validateChallenge}
-              disabled={isCelebrating}
+              {...getReviewButtonState(challenge.status, isCelebrating)}
             >
               Revisar respuesta
             </button>
@@ -2015,7 +3146,7 @@ function DecimalsSection({ onCelebrate, isCelebrating }) {
               type="button"
               className="primary-button"
               onClick={validateChallenge}
-              disabled={isCelebrating}
+              {...getReviewButtonState(challenge.status, isCelebrating)}
             >
               Revisar respuesta
             </button>
@@ -2211,7 +3342,7 @@ function App() {
       <header className="topbar-card">
         <div>
           <p className="eyebrow">Matematicas Rogers Hall 5°</p>
-          <h1>Temario Bloque III para Elenukis</h1>
+          <h1>{appTitle}</h1>
         </div>
         <nav className="top-nav" aria-label="Secciones del temario">
           {sectionItems.map((section) => (
@@ -2234,6 +3365,12 @@ function App() {
           onToggleItem={toggleSyllabusItem}
         />
       )}
+      {activeSection === "algorithms" && (
+        <AlgorithmsSection onCelebrate={celebrate} isCelebrating={isCelebrating} />
+      )}
+      {activeSection === "notation" && (
+        <NotationSection onCelebrate={celebrate} isCelebrating={isCelebrating} />
+      )}
       {activeSection === "geometry" && (
         <GeometrySection onCelebrate={celebrate} isCelebrating={isCelebrating} />
       )}
@@ -2242,6 +3379,12 @@ function App() {
       )}
       {activeSection === "rule-of-three" && (
         <RuleOfThreeSection onCelebrate={celebrate} isCelebrating={isCelebrating} />
+      )}
+      {activeSection === "sequences" && (
+        <SequencesSection onCelebrate={celebrate} isCelebrating={isCelebrating} />
+      )}
+      {activeSection === "fractions" && (
+        <FractionsSection onCelebrate={celebrate} isCelebrating={isCelebrating} />
       )}
       {activeSection === "mayan" && (
         <MayanSection onCelebrate={celebrate} isCelebrating={isCelebrating} />

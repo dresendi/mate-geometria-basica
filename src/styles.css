@@ -483,6 +483,16 @@ h3 {
   font-weight: 800;
 }
 
+.math-inline {
+  display: inline-flex;
+  align-items: center;
+  vertical-align: middle;
+}
+
+.math-inline-light .katex {
+  color: inherit;
+}
+
 .challenge-card {
   margin-top: 18px;
 }
@@ -547,16 +557,30 @@ h3 {
 }
 
 .mayan-display {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-rows: repeat(3, auto);
   gap: 14px;
+  width: min(100%, 320px);
+  margin-inline: auto;
 }
 
 .mayan-level {
   min-width: 120px;
-  display: flex;
-  justify-content: center;
+  display: grid;
+  grid-template-columns: 1fr;
+  justify-items: center;
+  gap: 10px;
+  padding: 12px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.72);
+  border: 3px solid rgba(22, 50, 79, 0.1);
+}
+
+.mayan-level-label {
+  color: #45627f;
+  font-size: 0.9rem;
+  font-weight: 800;
 }
 
 .mayan-digit {
@@ -595,10 +619,25 @@ h3 {
   height: 54px;
   display: grid;
   place-items: center;
-  border: 4px solid #16324f;
   border-radius: 999px 999px 50% 50%;
   background: #fff6de;
-  font-weight: 800;
+  overflow: hidden;
+}
+
+.mayan-shell-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.pi-helper {
+  margin-top: 14px;
+  padding: 12px 14px;
+  border-radius: 18px;
+  background: #eef5ff;
+  border: 3px dashed rgba(22, 50, 79, 0.14);
+  color: #45627f;
+  font-weight: 700;
 }
 
 .number-strip {
