@@ -91,6 +91,36 @@ button {
   animation: toastPop 0.35s ease;
 }
 
+.exam-grade-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 42;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+  animation: examGradeFade 2.6s ease forwards;
+}
+
+.exam-grade-chip {
+  display: grid;
+  gap: 12px;
+  justify-items: center;
+  min-width: min(92vw, 760px);
+  padding: 30px 36px;
+  border-radius: 36px;
+  border: 5px solid rgba(76, 175, 80, 0.18);
+  background: rgba(227, 255, 228, 0.9);
+  box-shadow: 0 28px 70px rgba(76, 175, 80, 0.2);
+  backdrop-filter: blur(10px);
+}
+
+.exam-grade-chip strong {
+  font-size: clamp(4rem, 18vw, 10rem);
+  line-height: 0.9;
+  color: #7ad97a;
+  text-shadow: 0 6px 26px rgba(76, 175, 80, 0.22);
+}
+
 .unlock-toast-image {
   width: 92px;
   height: 92px;
@@ -105,6 +135,7 @@ button {
 }
 
 .topbar-card,
+.progress-banner,
 .hero-card,
 .panel-card,
 .challenge-card,
@@ -126,6 +157,59 @@ button {
   gap: 16px;
   padding: 22px 24px;
   margin-bottom: 20px;
+}
+
+.progress-banner {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) auto;
+  gap: 18px 24px;
+  align-items: center;
+  padding: 22px 24px;
+  margin-bottom: 20px;
+  background:
+    linear-gradient(135deg, rgba(255, 244, 214, 0.96) 0%, rgba(255, 255, 255, 0.94) 48%, rgba(225, 245, 255, 0.96) 100%);
+}
+
+.progress-banner-copy {
+  display: grid;
+  gap: 8px;
+}
+
+.progress-banner-meter {
+  display: grid;
+  gap: 2px;
+  justify-items: end;
+  text-align: right;
+}
+
+.progress-banner-meter strong {
+  font-size: clamp(2.3rem, 5vw, 4.2rem);
+  line-height: 0.95;
+  color: #ff7a59;
+}
+
+.progress-banner-meter span {
+  font-weight: 800;
+  color: #45627f;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.progress-bar-track {
+  grid-column: 1 / -1;
+  height: 22px;
+  border-radius: 999px;
+  background: rgba(22, 50, 79, 0.08);
+  overflow: hidden;
+  border: 3px solid rgba(22, 50, 79, 0.08);
+}
+
+.progress-bar-fill {
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #ff9d42 0%, #ff7a59 45%, #7bdff2 100%);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.32);
+  transition: width 220ms ease;
 }
 
 .top-nav,
@@ -720,6 +804,51 @@ h3 {
   object-fit: contain;
 }
 
+.bar-chart-card {
+  padding: 16px;
+  border-radius: 24px;
+  background: linear-gradient(180deg, #fff3df 0%, #ffffff 100%);
+  border: 3px solid rgba(22, 50, 79, 0.1);
+}
+
+.bar-chart-svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.chart-axis {
+  stroke: #16324f;
+  stroke-width: 3;
+}
+
+.chart-grid-line {
+  stroke: rgba(22, 50, 79, 0.1);
+  stroke-width: 1.5;
+}
+
+.chart-bar {
+  fill: var(--bar-fill);
+  stroke: rgba(22, 50, 79, 0.16);
+  stroke-width: 2;
+}
+
+.chart-label {
+  fill: #16324f;
+  font-size: 13px;
+  font-weight: 800;
+  text-anchor: middle;
+}
+
+.chart-label-top {
+  fill: #ff7a59;
+}
+
+.chart-label-side {
+  text-anchor: end;
+  fill: #45627f;
+}
+
 .pi-helper {
   margin-top: 14px;
   padding: 12px 14px;
@@ -822,7 +951,27 @@ h3 {
   }
 }
 
+@keyframes examGradeFade {
+  0% {
+    opacity: 0;
+    transform: scale(0.85);
+  }
+  18% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  72% {
+    opacity: 1;
+    transform: scale(1.04);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.12);
+  }
+}
+
 @media (max-width: 1080px) {
+  .progress-banner,
   .hero-card,
   .lesson-grid,
   .two-column-grid,
@@ -838,6 +987,15 @@ h3 {
 @media (max-width: 760px) {
   .app-shell {
     padding: 18px;
+  }
+
+  .progress-banner {
+    padding: 20px;
+  }
+
+  .progress-banner-meter {
+    justify-items: start;
+    text-align: left;
   }
 
   .input-grid,

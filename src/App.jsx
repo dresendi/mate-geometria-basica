@@ -10,9 +10,12 @@ const sectionItems = [
   { id: "notation", label: "Notación desarrollada" },
   { id: "geometry", label: "Perímetros y áreas" },
   { id: "percentages", label: "Porcentajes" },
+  { id: "statistics", label: "Moda y media" },
+  { id: "bar-charts", label: "Gráficas de barras" },
   { id: "rule-of-three", label: "Regla de tres" },
   { id: "sequences", label: "Sucesiones" },
   { id: "fractions", label: "Fracciones" },
+  { id: "fraction-equivalences", label: "Equivalencia de fracciones" },
   { id: "mayan", label: "Números mayas" },
   { id: "measures", label: "Medidas de capacidad" },
   { id: "decimals", label: "Decimales" },
@@ -25,10 +28,13 @@ const syllabusItems = [
   "Escribir en notación desarrollada los números decimales e identificar el valor posicional.",
   "Ordenar números decimales hasta diezmilésimos de forma ascendente y descendente.",
   "Realizar sucesiones con números enteros y fracciones, identificando la constante.",
+  "Calcular la moda y la media de diferentes conjuntos de datos.",
+  "Interpretar gráficas de barras con lectura directa, comparación, diferencia y totalización.",
   "Resolver casos de porcentaje con regla de tres.",
   "Calcular el perímetro de figuras regulares e irregulares escribiendo la fórmula.",
   "Trabajar medidas de capacidad, peso y longitud con conversiones del sistema métrico decimal.",
   "Resolver suma y resta de fracciones propias, impropias y mixtas.",
+  "Reconocer equivalencias entre fracciones, decimales y porcentajes.",
   "Conocer y aplicar las reglas del sistema maya de numeración."
 ];
 
@@ -58,6 +64,18 @@ const moduleCards = [
       "Porcentajes simples como 50% de 800, con procedimiento visible paso a paso y zona de reto."
   },
   {
+    id: "statistics",
+    title: "Moda y media",
+    description:
+      "Descubre cuál valor se repite más y calcula el promedio de un conjunto de datos."
+  },
+  {
+    id: "bar-charts",
+    title: "Gráficas de barras",
+    description:
+      "Aprende a leer cantidades, comparar categorías, encontrar diferencias y sumar datos."
+  },
+  {
     id: "rule-of-three",
     title: "Regla de tres",
     description:
@@ -74,6 +92,12 @@ const moduleCards = [
     title: "Fracciones",
     description:
       "Resuelve suma y resta de fracciones propias, impropias y mixtas con explicación paso a paso."
+  },
+  {
+    id: "fraction-equivalences",
+    title: "Equivalencia de fracciones",
+    description:
+      "Relaciona fracciones con decimales y porcentajes, y encuentra formas equivalentes."
   },
   {
     id: "mayan",
@@ -103,7 +127,7 @@ const moduleCards = [
 
 const syllabusStorageKey = "block-iii-syllabus-checks";
 const gamificationStorageKey = "block-iii-gamification";
-const piValue = 3.1416;
+const piValue = 3.14;
 
 const celebrationCharacters = [
   { name: "Astro", image: "/astro.webp" },
@@ -291,6 +315,27 @@ function CelebrationOverlay({ active, imageSrc }) {
   );
 }
 
+function ProgressBanner({ completedCount, totalCount, percentage }) {
+  return (
+    <section className="progress-banner no-print" aria-label="Progreso del temario">
+      <div className="progress-banner-copy">
+        <p className="eyebrow">Progreso del temario</p>
+        <h2>Avance general</h2>
+        <p>
+          Has marcado {completedCount} de {totalCount} temas del bloque.
+        </p>
+      </div>
+      <div className="progress-banner-meter">
+        <strong>{percentage}%</strong>
+        <span>Completado</span>
+      </div>
+      <div className="progress-bar-track" aria-hidden="true">
+        <div className="progress-bar-fill" style={{ width: `${percentage}%` }} />
+      </div>
+    </section>
+  );
+}
+
 function MathInline({ expression, className = "" }) {
   return (
     <span
@@ -416,8 +461,8 @@ const geometryFigures = [
     explanation: "El radio va del centro a la orilla. En el circulo redondeamos a 2 decimales.",
     fields: [{ key: "radius", label: "Radio", shortLabel: "radio" }],
     formulas: {
-      perimeter: "P = 2 x 3.1416 x radio",
-      area: "A = 3.1416 x radio x radio"
+      perimeter: "P = 2 x 3.14 x radio",
+      area: "A = 3.14 x radio x radio"
     },
     createChallenge: () => ({ radius: randomInt(1, 20) }),
     calculate(values) {
@@ -428,8 +473,8 @@ const geometryFigures = [
     },
     substitution(values, results) {
       return {
-        perimeter: `P = 2 x 3.1416 x ${values.radius} = ${formatNumber(results.perimeter)}`,
-        area: `A = 3.1416 x ${values.radius} x ${values.radius} = ${formatNumber(results.area)}`
+        perimeter: `P = 2 x 3.14 x ${values.radius} = ${formatNumber(results.perimeter)}`,
+        area: `A = 3.14 x ${values.radius} x ${values.radius} = ${formatNumber(results.area)}`
       };
     },
     renderFigure(values) {
@@ -800,23 +845,46 @@ const randomFraction = (allowedDenominators = [2, 3, 4, 5, 6, 8]) => {
 
 const toMixedFractionString = ({ numerator, denominator }) => {
   const simplified = simplifyFraction({ numerator, denominator });
-  const whole = Math.trunc(simplified.numerator / simplified.denominator);
-  const remainder = Math.abs(simplified.numerator % simplified.denominator);
+  const sign = simplified.numerator < 0 ? "-" : "";
+  const absoluteNumerator = Math.abs(simplified.numerator);
+  const whole = Math.trunc(absoluteNumerator / simplified.denominator);
+  const remainder = absoluteNumerator % simplified.denominator;
 
   if (remainder === 0) {
-    return String(whole);
+    return `${sign}${whole}`;
   }
 
   if (whole === 0) {
-    return `${remainder}/${simplified.denominator}`;
+    return `${sign}${remainder}/${simplified.denominator}`;
   }
 
-  return `${whole} ${remainder}/${simplified.denominator}`;
+  return `${sign}${whole} ${remainder}/${simplified.denominator}`;
 };
 
 const fractionToLatex = ({ numerator, denominator }) => {
   const simplified = simplifyFraction({ numerator, denominator });
   return `\\frac{${simplified.numerator}}{${simplified.denominator}}`;
+};
+
+const rawFractionToLatex = ({ numerator, denominator }) =>
+  `\\frac{${numerator}}{${denominator}}`;
+
+const fractionToMixedLatex = (fraction) => {
+  const simplified = simplifyFraction(fraction);
+  const sign = simplified.numerator < 0 ? "-" : "";
+  const absoluteNumerator = Math.abs(simplified.numerator);
+  const whole = Math.trunc(absoluteNumerator / simplified.denominator);
+  const remainder = absoluteNumerator % simplified.denominator;
+
+  if (remainder === 0) {
+    return `${sign}${whole}`;
+  }
+
+  if (whole === 0) {
+    return `${sign}\\frac{${remainder}}{${simplified.denominator}}`;
+  }
+
+  return `${sign}${whole}\\frac{${remainder}}{${simplified.denominator}}`;
 };
 
 const mixedFractionToLatex = ({ whole, numerator, denominator }) => {
@@ -1082,7 +1150,7 @@ const createSequenceTerms = (type, start, step) => {
   }
 
   if (type === "decimal") {
-    return Array.from({ length: 5 }, (_, index) => roundTo(start + step * index, 4));
+    return Array.from({ length: 5 }, (_, index) => roundTo(start + step * index, 1));
   }
 
   return Array.from({ length: 5 }, (_, index) => ({
@@ -1091,15 +1159,30 @@ const createSequenceTerms = (type, start, step) => {
   }));
 };
 
+const createSequenceFractionBase = () => {
+  const denominator = [2, 3, 4, 5, 6, 8, 9, 10, 12][randomInt(0, 8)];
+  const startWhole = randomInt(0, 5);
+  const startNumerator = randomInt(1, denominator - 1);
+  const direction = Math.random() > 0.5 ? 1 : -1;
+  const maxStepNumerator = direction > 0
+    ? Math.max(1, Math.min(denominator * 2, 9))
+    : Math.max(1, Math.min(startWhole * denominator + startNumerator, denominator * 2, 9));
+  const stepNumerator = randomInt(1, maxStepNumerator) * direction;
+  const start = simplifyFraction(mixedToFraction(startWhole, startNumerator, denominator));
+  const step = simplifyFraction({ numerator: stepNumerator, denominator });
+
+  return { start, step };
+};
+
 const createSequenceChallenge = () => {
   const id = `sequence-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
-  const start = roundTo(randomInt(1, 300) + Math.random(), 4);
-  const step = roundTo(0.1 + Math.random() * 25, 4);
+  const { start, step } = createSequenceFractionBase();
   return {
     id,
-    type: "decimal",
+    type: "fraction",
     start,
     step,
+    nextAnswer: "",
     answer: "",
     constantAnswer: "",
     status: "idle"
@@ -1111,6 +1194,27 @@ const parseFractionString = (value) => {
 
   if (!cleanValue) {
     return null;
+  }
+
+  const mixedMatch = cleanValue.match(/^(-?\d+)\s+(\d+)\s*\/\s*(\d+)$/);
+
+  if (mixedMatch) {
+    const whole = Number(mixedMatch[1]);
+    const numerator = Number(mixedMatch[2]);
+    const denominator = Number(mixedMatch[3]);
+
+    if (!Number.isFinite(whole) || !Number.isFinite(numerator) || !Number.isFinite(denominator) || denominator === 0) {
+      return null;
+    }
+
+    const absoluteWhole = Math.abs(whole);
+    const improperNumerator =
+      absoluteWhole * denominator + numerator;
+
+    return simplifyFraction({
+      numerator: whole < 0 ? -improperNumerator : improperNumerator,
+      denominator
+    });
   }
 
   if (cleanValue.includes("/")) {
@@ -1236,11 +1340,230 @@ const normalizeDecimalListAnswer = (value) =>
     .map((item) => formatFixed(item))
     .join(", ");
 
+const createUniqueModeDataset = () => {
+  while (true) {
+    const modeValue = randomInt(4, 15);
+    const modeRepeats = randomInt(2, 3);
+    const totalCount = 6;
+    const values = Array.from({ length: modeRepeats }, () => modeValue);
+
+    while (values.length < totalCount) {
+      const candidate = randomInt(2, 20);
+
+      if (candidate !== modeValue && !values.includes(candidate)) {
+        values.push(candidate);
+      }
+    }
+
+    return shuffleArray(values);
+  }
+};
+
+const calculateMean = (values) =>
+  roundTo(values.reduce((total, value) => total + value, 0) / values.length, 2);
+
+const calculateMode = (values) => {
+  const frequencies = new Map();
+
+  values.forEach((value) => {
+    frequencies.set(value, (frequencies.get(value) ?? 0) + 1);
+  });
+
+  let modeValue = values[0];
+  let highestCount = 0;
+
+  frequencies.forEach((count, value) => {
+    if (count > highestCount) {
+      highestCount = count;
+      modeValue = value;
+    }
+  });
+
+  return modeValue;
+};
+
+const parseIntegerList = (value) =>
+  String(value)
+    .split(",")
+    .map((item) => Number(item.trim()))
+    .filter((item) => Number.isInteger(item) && item >= 0 && item <= 50);
+
+const statisticsChallengeFactory = () => {
+  const values = createUniqueModeDataset();
+
+  return {
+    values,
+    mode: calculateMode(values),
+    mean: calculateMean(values),
+    modeAnswer: "",
+    meanAnswer: "",
+    status: "idle"
+  };
+};
+
+const barChartExamples = [
+  {
+    title: "Mascotas favoritas de 5°",
+    categories: [
+      { label: "Perros", value: 10, color: "#ff9f1c" },
+      { label: "Gatos", value: 8, color: "#2ec4b6" },
+      { label: "Aves", value: 4, color: "#7b6dff" },
+      { label: "Peces", value: 2, color: "#ff7aa2" }
+    ]
+  },
+  {
+    title: "Frutas favoritas del grupo",
+    categories: [
+      { label: "Mango", value: 9, color: "#ff9f1c" },
+      { label: "Sandia", value: 6, color: "#2ec4b6" },
+      { label: "Uvas", value: 4, color: "#7b6dff" },
+      { label: "Pera", value: 3, color: "#ff7aa2" }
+    ]
+  }
+];
+
+const barChartChallengeFactory = () => {
+  const example = barChartExamples[randomInt(0, barChartExamples.length - 1)];
+  const questionType = ["direct", "comparison", "difference", "total"][randomInt(0, 3)];
+  const categories = example.categories;
+
+  if (questionType === "direct") {
+    const category = categories[randomInt(0, categories.length - 1)];
+
+    return {
+      ...example,
+      prompt: `¿Cuántos votos tiene ${category.label.toLowerCase()}?`,
+      answerType: "number",
+      expected: category.value,
+      answer: "",
+      status: "idle"
+    };
+  }
+
+  if (questionType === "comparison") {
+    const highestCategory = [...categories].sort((left, right) => right.value - left.value)[0];
+
+    return {
+      ...example,
+      prompt: "¿Qué categoría tiene la mayor cantidad?",
+      answerType: "text",
+      expected: highestCategory.label.toLowerCase(),
+      answer: "",
+      status: "idle"
+    };
+  }
+
+  if (questionType === "difference") {
+    const [firstCategory, secondCategory] = shuffleArray(categories).slice(0, 2);
+
+    return {
+      ...example,
+      prompt: `¿Cuántos más prefieren ${firstCategory.label.toLowerCase()} que ${secondCategory.label.toLowerCase()}?`,
+      answerType: "number",
+      expected: Math.abs(firstCategory.value - secondCategory.value),
+      answer: "",
+      status: "idle"
+    };
+  }
+
+  return {
+    ...example,
+    prompt: "¿Cuántos participantes hay en total?",
+    answerType: "number",
+    expected: categories.reduce((total, item) => total + item.value, 0),
+    answer: "",
+    status: "idle"
+  };
+};
+
+const createEquivalentFraction = (fraction, factor) => ({
+  numerator: fraction.numerator * factor,
+  denominator: fraction.denominator * factor
+});
+
+const fractionEquivalenceChallengeFactory = () => {
+  const sourceFractions = [
+    { numerator: 1, denominator: 2 },
+    { numerator: 1, denominator: 4 },
+    { numerator: 3, denominator: 4 },
+    { numerator: 1, denominator: 10 },
+    { numerator: 1, denominator: 5 },
+    { numerator: 2, denominator: 5 },
+    { numerator: 9, denominator: 10 },
+    { numerator: 5, denominator: 100 },
+    { numerator: 25, denominator: 100 }
+  ];
+  const fraction = sourceFractions[randomInt(0, sourceFractions.length - 1)];
+  const factor = randomInt(2, 4);
+  const equivalent = createEquivalentFraction(fraction, factor);
+
+  return {
+    fraction,
+    equivalent,
+    decimal: roundTo(fraction.numerator / fraction.denominator, 2),
+    percentage: roundTo((fraction.numerator / fraction.denominator) * 100, 2),
+    numeratorAnswer: "",
+    decimalAnswer: "",
+    percentageAnswer: "",
+    status: "idle"
+  };
+};
+
+function BarChartDisplay({ title, categories }) {
+  const maxValue = Math.max(...categories.map((item) => item.value));
+  const chartHeight = 220;
+  const barWidth = 72;
+  const gap = 26;
+  const axisLeft = 52;
+  const chartBottom = 260;
+  const svgWidth = axisLeft + categories.length * (barWidth + gap) + 30;
+  const ticks = Array.from({ length: maxValue + 1 }, (_, index) => index);
+
+  return (
+    <div className="bar-chart-card">
+      <p className="eyebrow">{title}</p>
+      <svg viewBox={`0 0 ${svgWidth} 320`} className="bar-chart-svg" role="img" aria-label={title}>
+        <line x1={axisLeft} y1={30} x2={axisLeft} y2={chartBottom} className="chart-axis" />
+        <line x1={axisLeft} y1={chartBottom} x2={svgWidth - 10} y2={chartBottom} className="chart-axis" />
+        {ticks.map((tick) => {
+          const y = chartBottom - (tick / maxValue) * chartHeight;
+
+          return (
+            <g key={tick}>
+              <line x1={axisLeft - 6} y1={y} x2={svgWidth - 12} y2={y} className="chart-grid-line" />
+              <text x={axisLeft - 14} y={y + 5} className="chart-label chart-label-side">
+                {tick}
+              </text>
+            </g>
+          );
+        })}
+        {categories.map((item, index) => {
+          const x = axisLeft + 14 + index * (barWidth + gap);
+          const height = (item.value / maxValue) * chartHeight;
+          const y = chartBottom - height;
+
+          return (
+            <g key={item.label}>
+              <rect x={x} y={y} width={barWidth} height={height} rx="12" className="chart-bar" style={{ "--bar-fill": item.color }} />
+              <text x={x + barWidth / 2} y={y - 8} className="chart-label chart-label-top">
+                {item.value}
+              </text>
+              <text x={x + barWidth / 2} y={chartBottom + 24} className="chart-label">
+                {item.label}
+              </text>
+            </g>
+          );
+        })}
+      </svg>
+    </div>
+  );
+}
+
 const buildGeometryExamPrompt = (figure, measure, values) => {
   const fieldDetails = figure.fields
     .map((field) => `${field.label.toLowerCase()} ${values[field.key]}`)
     .join(", ");
-  const piHelp = figure.id === "circle" ? " Usa pi = 3.1416." : "";
+  const piHelp = figure.id === "circle" ? " Usa pi = 3.14." : "";
 
   return `Calcula el ${measure === "area" ? "área" : "perímetro"} del ${figure.name.toLowerCase()} con ${fieldDetails}.${piHelp}`;
 };
@@ -1263,6 +1586,14 @@ function ExamQuestionVisual({ question }) {
     return (
       <div className="exam-visual mayan-panel compact-panel">
         <MayanDisplay value={question.visualValue} />
+      </div>
+    );
+  }
+
+  if (question.visualType === "bar-chart") {
+    return (
+      <div className="exam-visual compact-panel">
+        <BarChartDisplay title={question.visualTitle} categories={question.visualCategories} />
       </div>
     );
   }
@@ -1338,6 +1669,38 @@ const createExamQuestion = (topicId, index) => {
     };
   }
 
+  if (topicId === "statistics") {
+    const challenge = statisticsChallengeFactory();
+    const askForMode = Math.random() > 0.5;
+
+    return {
+      id: `exam-${topicId}-${index}`,
+      topic: "Moda y media",
+      prompt: `Observa los datos ${challenge.values.join(", ")}. ¿Cuál es la ${askForMode ? "moda" : "media"}?`,
+      answerType: "number",
+      expected: askForMode ? challenge.mode : challenge.mean,
+      placeholder: askForMode ? "Escribe la moda" : "Escribe la media",
+      tolerance: askForMode ? 0.0001 : 0.01
+    };
+  }
+
+  if (topicId === "bar-charts") {
+    const challenge = barChartChallengeFactory();
+
+    return {
+      id: `exam-${topicId}-${index}`,
+      topic: "Gráficas de barras",
+      prompt: challenge.prompt,
+      answerType: challenge.answerType,
+      expected: challenge.expected,
+      placeholder: challenge.answerType === "text" ? "Escribe la categoría" : "Escribe tu respuesta",
+      tolerance: 0.0001,
+      visualType: "bar-chart",
+      visualTitle: challenge.title,
+      visualCategories: challenge.categories
+    };
+  }
+
   if (topicId === "rule-of-three") {
     const challenge = ruleOfThreeChallengeFactory();
 
@@ -1359,10 +1722,16 @@ const createExamQuestion = (topicId, index) => {
     return {
       id: `exam-${topicId}-${index}`,
       topic: "Sucesiones",
-      prompt: `Observa la sucesión ${terms.slice(0, 4).map((term) => formatFixed(term)).join(", ")} y escribe el siguiente termino.`,
-      answerType: "number",
-      expected: terms[4],
-      placeholder: "Escribe el siguiente termino",
+      prompt: `Observa la sucesión ${terms
+        .slice(0, 3)
+        .map((term) => toMixedFractionString(term))
+        .join(", ")} y escribe los dos siguientes términos separados por coma.`,
+      answerType: "fraction-list",
+      expected: terms
+        .slice(3)
+        .map((term) => fractionToString(term))
+        .join(","),
+      placeholder: "Ejemplo: 3/2, 2",
       tolerance: 0.0001
     };
   }
@@ -1397,6 +1766,34 @@ const createExamQuestion = (topicId, index) => {
       answerType: "fraction",
       expected: result,
       placeholder: "Ejemplo: 5/4 o 1.25"
+    };
+  }
+
+  if (topicId === "fraction-equivalences") {
+    const challenge = fractionEquivalenceChallengeFactory();
+    const askFor = ["decimal", "percentage", "fraction"][randomInt(0, 2)];
+
+    return {
+      id: `exam-${topicId}-${index}`,
+      topic: "Equivalencia de fracciones",
+      prompt:
+        askFor === "fraction"
+          ? `Escribe una fracción equivalente a ${fractionToString(challenge.fraction)}.`
+          : `Convierte ${fractionToString(challenge.fraction)} a ${askFor === "decimal" ? "decimal" : "porcentaje"}.`,
+      answerType: askFor === "fraction" ? "fraction" : "number",
+      expected:
+        askFor === "fraction"
+          ? challenge.equivalent
+          : askFor === "decimal"
+            ? challenge.decimal
+            : challenge.percentage,
+      placeholder:
+        askFor === "fraction"
+          ? "Ejemplo: 2/4"
+          : askFor === "decimal"
+            ? "Ejemplo: 0.25"
+            : "Ejemplo: 25",
+      tolerance: 0.01
     };
   }
 
@@ -1455,13 +1852,16 @@ const createExamQuestions = () =>
     "notation",
     "geometry",
     "percentages",
+    "statistics",
+    "bar-charts",
     "rule-of-three",
     "sequences",
     "fractions",
+    "fraction-equivalences",
     "mayan",
     "measures",
     "decimals"
-  ]).map((topicId, index) => ({
+  ]).slice(0, 10).map((topicId, index) => ({
     ...createExamQuestion(topicId, index),
     answer: "",
     status: "idle"
@@ -1760,7 +2160,7 @@ function GeometrySection({ onCelebrate, isCelebrating }) {
           </div>
           {activeFigure.id === "circle" && (
             <div className="pi-helper">
-              Ayuda: para este tema usamos pi = 3.1416.
+              Ayuda: para este tema usamos pi = 3.14.
             </div>
           )}
         </article>
@@ -1825,7 +2225,7 @@ function GeometrySection({ onCelebrate, isCelebrating }) {
                 .map((field) => `${field.shortLabel}: ${activeChallenge.values[field.key]}`)
                 .join(", ")}
               .
-              {activeFigure.id === "circle" ? " Recuerda usar pi = 3.1416." : ""}
+              {activeFigure.id === "circle" ? " Recuerda usar pi = 3.14." : ""}
             </p>
             <div className="challenge-inputs">
               <label className="field-card">
@@ -2579,31 +2979,25 @@ function NotationSection({ onCelebrate, isCelebrating }) {
 }
 
 function SequencesSection({ onCelebrate, isCelebrating }) {
-  const [sequenceType, setSequenceType] = useState("integer");
-  const [startValue, setStartValue] = useState(4);
-  const [stepValue, setStepValue] = useState(3);
-  const [fractionStart, setFractionStart] = useState({ numerator: 1, denominator: 4 });
+  const [fractionStart, setFractionStart] = useState({ whole: 1, numerator: 1, denominator: 2 });
   const [fractionStep, setFractionStep] = useState({ numerator: 1, denominator: 4 });
   const [challenge, setChallenge] = useState(createSequenceChallenge);
 
-  const practiceTerms =
-    sequenceType === "integer"
-      ? createSequenceTerms("integer", startValue, stepValue)
-      : createSequenceTerms("fraction", fractionStart, fractionStep);
+  const practiceStart = simplifyFraction(
+    mixedToFraction(fractionStart.whole, fractionStart.numerator, fractionStart.denominator)
+  );
+  const practiceStep = simplifyFraction(fractionStep);
+  const practiceTerms = createSequenceTerms("fraction", practiceStart, practiceStep);
   const challengeTerms = createSequenceTerms(challenge.type, challenge.start, challenge.step);
-  const challengeExpectedNext = challengeTerms[challengeTerms.length - 1];
+  const challengeExpectedFourth = challengeTerms[3];
+  const challengeExpectedFifth = challengeTerms[4];
   const challengeExpectedConstant = challenge.step;
 
   const validateChallenge = () => {
-    const answerOk =
-      challenge.type === "fraction"
-        ? areFractionsEqual(parseFractionString(challenge.answer), challengeExpectedNext)
-        : Math.abs(parseAnswer(challenge.answer) - challengeExpectedNext) <= 0.0001;
-    const constantOk =
-      challenge.type === "fraction"
-        ? areFractionsEqual(parseFractionString(challenge.constantAnswer), challengeExpectedConstant)
-        : Math.abs(parseAnswer(challenge.constantAnswer) - challengeExpectedConstant) <= 0.0001;
-    const success = answerOk && constantOk;
+    const fourthOk = areFractionsEqual(parseFractionString(challenge.answer), challengeExpectedFourth);
+    const fifthOk = areFractionsEqual(parseFractionString(challenge.nextAnswer), challengeExpectedFifth);
+    const constantOk = areFractionsEqual(parseFractionString(challenge.constantAnswer), challengeExpectedConstant);
+    const success = fourthOk && fifthOk && constantOk;
 
     setChallenge((currentState) => ({
       ...currentState,
@@ -2620,58 +3014,41 @@ function SequencesSection({ onCelebrate, isCelebrating }) {
       <SectionHeader
         eyebrow="Patrones"
         title="Sucesiones"
-        description="Observa como una regla constante hace crecer o disminuir una sucesión con enteros o fracciones."
+        description="Observa cómo una constante fraccionaria hace crecer o disminuir una sucesión."
       />
       <div className="lesson-grid">
         <article className="panel-card">
           <SectionHeader
             eyebrow="Practica"
             title="Construye una sucesión"
-            description="Elige enteros o fracciones y observa la constante."
+            description="Usa un inicio fraccionario y una constante para formar la sucesión."
           />
-          <div className="selector-row">
-            <button type="button" className={`topic-pill neutral-pill ${sequenceType === "integer" ? "is-active" : ""}`} onClick={() => setSequenceType("integer")}>
-              Enteros
-            </button>
-            <button type="button" className={`topic-pill neutral-pill ${sequenceType === "fraction" ? "is-active" : ""}`} onClick={() => setSequenceType("fraction")}>
-              Fracciones
-            </button>
+          <div className="input-grid">
+            <label className="field-card">
+              <span>Inicio entero</span>
+              <input type="number" value={fractionStart.whole} onChange={(event) => setFractionStart((current) => ({ ...current, whole: clampInteger(event.target.value, 0, 12) }))} />
+            </label>
+            <label className="field-card">
+              <span>Inicio numerador</span>
+              <input type="number" value={fractionStart.numerator} onChange={(event) => setFractionStart((current) => ({ ...current, numerator: clampInteger(event.target.value, 0, 20) }))} />
+            </label>
+            <label className="field-card">
+              <span>Inicio denominador</span>
+              <input type="number" value={fractionStart.denominator} onChange={(event) => setFractionStart((current) => ({ ...current, denominator: clampInteger(event.target.value, 1, 12) }))} />
+            </label>
+            <label className="field-card">
+              <span>Constante numerador</span>
+              <input type="number" value={fractionStep.numerator} onChange={(event) => setFractionStep((current) => ({ ...current, numerator: clampInteger(event.target.value, -12, 12) }))} />
+            </label>
+            <label className="field-card">
+              <span>Constante denominador</span>
+              <input type="number" value={fractionStep.denominator} onChange={(event) => setFractionStep((current) => ({ ...current, denominator: clampInteger(event.target.value, 1, 12) }))} />
+            </label>
           </div>
-          {sequenceType === "integer" ? (
-            <div className="input-grid">
-              <label className="field-card">
-                <span>Inicio</span>
-                <input type="number" value={startValue} onChange={(event) => setStartValue(clampInteger(event.target.value, 0, 99))} />
-              </label>
-              <label className="field-card">
-                <span>Constante</span>
-                <input type="number" value={stepValue} onChange={(event) => setStepValue(clampInteger(event.target.value, -20, 20))} />
-              </label>
-            </div>
-          ) : (
-            <div className="input-grid">
-              <label className="field-card">
-                <span>Inicio numerador</span>
-                <input type="number" value={fractionStart.numerator} onChange={(event) => setFractionStart((current) => ({ ...current, numerator: clampInteger(event.target.value, 0, 20) }))} />
-              </label>
-              <label className="field-card">
-                <span>Inicio denominador</span>
-                <input type="number" value={fractionStart.denominator} onChange={(event) => setFractionStart((current) => ({ ...current, denominator: clampInteger(event.target.value, 1, 12) }))} />
-              </label>
-              <label className="field-card">
-                <span>Constante numerador</span>
-                <input type="number" value={fractionStep.numerator} onChange={(event) => setFractionStep((current) => ({ ...current, numerator: clampInteger(event.target.value, -10, 10) }))} />
-              </label>
-              <label className="field-card">
-                <span>Constante denominador</span>
-                <input type="number" value={fractionStep.denominator} onChange={(event) => setFractionStep((current) => ({ ...current, denominator: clampInteger(event.target.value, 1, 12) }))} />
-              </label>
-            </div>
-          )}
           <div className="number-strip">
             {practiceTerms.map((term, index) => (
               <span key={index}>
-                {sequenceType === "integer" ? term : <MathInline expression={fractionToLatex(term)} />}
+                <MathInline expression={fractionToMixedLatex(term)} />
               </span>
             ))}
           </div>
@@ -2679,37 +3056,42 @@ function SequencesSection({ onCelebrate, isCelebrating }) {
             <h3>Constante</h3>
             <p>
               <span>Regla:</span>{" "}
-              {sequenceType === "integer"
-                ? `sumar ${stepValue} cada vez`
-                : `sumar ${formatFractionMath(fractionStep)} cada vez`}
+              {practiceStep.numerator >= 0
+                ? `sumar ${toMixedFractionString(practiceStep)} cada vez`
+                : `restar ${toMixedFractionString({ numerator: Math.abs(practiceStep.numerator), denominator: practiceStep.denominator })} cada vez`}
             </p>
           </div>
         </article>
 
         <article className="panel-card">
-          <SectionHeader eyebrow="Reto" title="Encuentra el siguiente termino" description="Descubre el siguiente termino y la constante de una sucesión con números decimales." />
+          <SectionHeader eyebrow="Reto" title="Completa la sucesión" description="Observa tres términos, escribe los dos siguientes y encuentra la constante fraccionaria." />
           <div className="challenge-card">
             <div className="challenge-head">
               <div>
-                <p className="eyebrow">Decimales</p>
-              <h3>¿Qué sigue?</h3>
+                <p className="eyebrow">Fracciones</p>
+                <h3>¿Qué sigue?</h3>
               </div>
               <button type="button" className="secondary-button" onClick={() => setChallenge(createSequenceChallenge())}>
                 Nuevo reto
               </button>
             </div>
             <div className="number-strip" key={challenge.id}>
-              {challengeTerms.slice(0, 4).map((term, index) => (
+              {challengeTerms.slice(0, 3).map((term, index) => (
                 <span key={`${challenge.id}-${index}`}>
-                  {formatFixed(term)}
+                  <MathInline expression={fractionToMixedLatex(term)} />
                 </span>
               ))}
-              <span key={`${challenge.id}-question`}>?</span>
+              <span key={`${challenge.id}-question-one`}>?</span>
+              <span key={`${challenge.id}-question-two`}>?</span>
             </div>
             <div className="challenge-inputs">
               <label className="field-card">
-                <span>Siguiente termino</span>
+                <span>Cuarto término</span>
                 <input type="text" value={challenge.answer} {...getChallengeLockState(challenge.status, isCelebrating)} onChange={(event) => setChallenge((currentState) => ({ ...currentState, answer: event.target.value, status: "idle" }))} />
+              </label>
+              <label className="field-card">
+                <span>Quinto término</span>
+                <input type="text" value={challenge.nextAnswer} {...getChallengeLockState(challenge.status, isCelebrating)} onChange={(event) => setChallenge((currentState) => ({ ...currentState, nextAnswer: event.target.value, status: "idle" }))} />
               </label>
               <label className="field-card">
                 <span>Constante</span>
@@ -2725,10 +3107,10 @@ function SequencesSection({ onCelebrate, isCelebrating }) {
               Revisar respuestá
             </button>
             {challenge.status === "success" && (
-              <p className="feedback success-message">Excelente. Ya identificaste el siguiente termino y la constante.</p>
+              <p className="feedback success-message">Excelente. Completaste la sucesión y encontraste la constante.</p>
             )}
             {challenge.status === "error" && (
-              <p className="feedback error-message">Revisa cuánto cambia cada termino respecto al anterior.</p>
+              <p className="feedback error-message">Revisa cuánto cambia cada término respecto al anterior y mantén la misma fracción.</p>
             )}
           </div>
         </article>
@@ -2903,6 +3285,359 @@ function FractionsSection({ onCelebrate, isCelebrating }) {
             )}
             {challenge.status === "error" && (
               <p className="feedback error-message">Revisa la conversin a impropias y busca un denominador comun antes de operar.</p>
+            )}
+          </div>
+        </article>
+      </div>
+    </section>
+  );
+}
+
+function StatisticsSection({ onCelebrate, isCelebrating }) {
+  const [rawValues, setRawValues] = useState("9, 7, 10, 8, 9");
+  const [challenge, setChallenge] = useState(statisticsChallengeFactory);
+
+  const parsedValues = parseIntegerList(rawValues);
+  const activeValues = parsedValues.length >= 4 ? parsedValues : [9, 7, 10, 8, 9];
+  const mode = calculateMode(activeValues);
+  const mean = calculateMean(activeValues);
+
+  const validateChallenge = () => {
+    const modeOk = Number(challenge.modeAnswer) === challenge.mode;
+    const meanOk = Math.abs(parseAnswer(challenge.meanAnswer) - challenge.mean) <= 0.01;
+    const success = modeOk && meanOk;
+
+    setChallenge((currentState) => ({
+      ...currentState,
+      status: success ? "success" : "error"
+    }));
+
+    if (success) {
+      onCelebrate("#ff9f1c");
+    }
+  };
+
+  return (
+    <section className="page-section">
+      <SectionHeader
+        eyebrow="Datos"
+        title="Moda y media"
+        description="La moda es el valor que más se repite y la media es el promedio de todos los datos."
+      />
+
+      <div className="lesson-grid">
+        <article className="panel-card">
+          <SectionHeader
+            eyebrow="Explorador"
+            title="Analiza un conjunto"
+            description="Escribe datos separados por comas y observa la moda y la media."
+          />
+          <label className="field-card">
+            <span>Datos</span>
+            <input
+              type="text"
+              value={rawValues}
+              onChange={(event) => setRawValues(event.target.value)}
+              placeholder="Ejemplo: 9, 7, 10, 8, 9"
+            />
+          </label>
+          <div className="number-strip">
+            {activeValues.map((value, index) => (
+              <span key={`${value}-${index}`}>{value}</span>
+            ))}
+          </div>
+          <div className="result-grid">
+            <div className="result-card">
+              <h3>Moda</h3>
+              <strong>{mode}</strong>
+            </div>
+            <div className="result-card">
+              <h3>Media</h3>
+              <strong>{formatNumber(mean)}</strong>
+            </div>
+          </div>
+          <div className="substitution-card">
+            <h3>¿Cómo se obtiene la media?</h3>
+            <p>
+              <span>Suma:</span> {activeValues.join(" + ")} = {activeValues.reduce((total, value) => total + value, 0)}
+            </p>
+            <p>
+              <span>Media:</span> {activeValues.reduce((total, value) => total + value, 0)} / {activeValues.length} = {formatNumber(mean)}
+            </p>
+          </div>
+        </article>
+
+        <article className="panel-card">
+          <SectionHeader
+            eyebrow="Reto"
+            title="Encuentra moda y media"
+            description="Resuelve ambos valores para anotar el reto como correcto."
+          />
+          <div className="challenge-card">
+            <div className="challenge-head">
+              <div>
+                <p className="eyebrow">Datos</p>
+                <h3>{challenge.values.join(", ")}</h3>
+              </div>
+              <button type="button" className="secondary-button" onClick={() => setChallenge(statisticsChallengeFactory())}>
+                Nuevo reto
+              </button>
+            </div>
+            <div className="challenge-inputs">
+              <label className="field-card">
+                <span>Moda</span>
+                <input
+                  type="number"
+                  value={challenge.modeAnswer}
+                  {...getChallengeLockState(challenge.status, isCelebrating)}
+                  onChange={(event) =>
+                    setChallenge((currentState) => ({ ...currentState, modeAnswer: event.target.value, status: "idle" }))
+                  }
+                />
+              </label>
+              <label className="field-card">
+                <span>Media</span>
+                <input
+                  type="text"
+                  value={challenge.meanAnswer}
+                  {...getChallengeLockState(challenge.status, isCelebrating)}
+                  onChange={(event) =>
+                    setChallenge((currentState) => ({ ...currentState, meanAnswer: event.target.value, status: "idle" }))
+                  }
+                />
+              </label>
+            </div>
+            <button type="button" className="primary-button" onClick={validateChallenge} {...getReviewButtonState(challenge.status, isCelebrating)}>
+              Revisar respuestá
+            </button>
+            {challenge.status === "success" && (
+              <p className="feedback success-message">Muy bien. La moda es {challenge.mode} y la media es {formatNumber(challenge.mean)}.</p>
+            )}
+            {challenge.status === "error" && (
+              <p className="feedback error-message">Revisa qué número se repite más y recuerda dividir la suma entre la cantidad de datos.</p>
+            )}
+          </div>
+        </article>
+      </div>
+    </section>
+  );
+}
+
+function BarChartsSection({ onCelebrate, isCelebrating }) {
+  const example = barChartExamples[0];
+  const [challenge, setChallenge] = useState(barChartChallengeFactory);
+
+  const validateChallenge = () => {
+    const success =
+      challenge.answerType === "text"
+        ? String(challenge.answer).trim().toLowerCase() === String(challenge.expected).trim().toLowerCase()
+        : Math.abs(parseAnswer(challenge.answer) - challenge.expected) <= 0.0001;
+
+    setChallenge((currentState) => ({
+      ...currentState,
+      status: success ? "success" : "error"
+    }));
+
+    if (success) {
+      onCelebrate("#7b6dff");
+    }
+  };
+
+  return (
+    <section className="page-section">
+      <SectionHeader
+        eyebrow="Lectura de datos"
+        title="Interpretación de gráficas de barras"
+        description="Una gráfica de barras organiza datos y permite leer cantidades, comparar, encontrar diferencias y obtener totales."
+      />
+
+      <div className="lesson-grid">
+        <article className="panel-card">
+          <SectionHeader
+            eyebrow="Ejemplo"
+            title="Partes de una gráfica"
+            description="El eje horizontal muestra las categorías y el eje vertical la escala numérica."
+          />
+          <BarChartDisplay title={example.title} categories={example.categories} />
+          <div className="formula-grid single-column">
+            <div className="info-box">
+              <h3>Qué podemos responder</h3>
+              <p>Lectura directa: ¿cuántos votos tiene una categoría?</p>
+              <p>Comparación: ¿qué categoría tiene más o menos?</p>
+              <p>Diferencia: ¿cuántos más hay entre una y otra?</p>
+              <p>Totalización: sumar todas las barras para obtener el total.</p>
+            </div>
+          </div>
+        </article>
+
+        <article className="panel-card">
+          <SectionHeader
+            eyebrow="Reto"
+            title="Responde la gráfica"
+            description="Observa la gráfica y responde según el tipo de pregunta."
+          />
+          <div className="challenge-card">
+            <div className="challenge-head">
+              <div>
+                <p className="eyebrow">Pregunta</p>
+                <h3>{challenge.prompt}</h3>
+              </div>
+              <button type="button" className="secondary-button" onClick={() => setChallenge(barChartChallengeFactory())}>
+                Nuevo reto
+              </button>
+            </div>
+            <BarChartDisplay title={challenge.title} categories={challenge.categories} />
+            <label className="field-card">
+              <span>Tu respuesta</span>
+              <input
+                type="text"
+                value={challenge.answer}
+                {...getChallengeLockState(challenge.status, isCelebrating)}
+                onChange={(event) =>
+                  setChallenge((currentState) => ({ ...currentState, answer: event.target.value, status: "idle" }))
+                }
+              />
+            </label>
+            <button type="button" className="primary-button" onClick={validateChallenge} {...getReviewButtonState(challenge.status, isCelebrating)}>
+              Revisar respuestá
+            </button>
+            {challenge.status === "success" && (
+              <p className="feedback success-message">Correcto. Leíste la gráfica de barras muy bien.</p>
+            )}
+            {challenge.status === "error" && (
+              <p className="feedback error-message">Revisa la altura de las barras y compara con la escala del eje vertical.</p>
+            )}
+          </div>
+        </article>
+      </div>
+    </section>
+  );
+}
+
+function FractionEquivalencesSection({ onCelebrate, isCelebrating }) {
+  const [numerator, setNumerator] = useState(1);
+  const [denominator, setDenominator] = useState(4);
+  const [challenge, setChallenge] = useState(fractionEquivalenceChallengeFactory);
+
+  const baseFraction = simplifyFraction({ numerator, denominator: Math.max(1, denominator) });
+  const equivalentFraction = createEquivalentFraction(baseFraction, 2);
+  const decimalValue = roundTo(baseFraction.numerator / baseFraction.denominator, 2);
+  const percentageValue = roundTo(decimalValue * 100, 2);
+
+  const validateChallenge = () => {
+    const numeratorOk = Number(challenge.numeratorAnswer) === challenge.equivalent.numerator;
+    const decimalOk = Math.abs(parseAnswer(challenge.decimalAnswer) - challenge.decimal) <= 0.01;
+    const percentageOk = Math.abs(parseAnswer(challenge.percentageAnswer) - challenge.percentage) <= 0.01;
+    const success = numeratorOk && decimalOk && percentageOk;
+
+    setChallenge((currentState) => ({
+      ...currentState,
+      status: success ? "success" : "error"
+    }));
+
+    if (success) {
+      onCelebrate("#2ec4b6");
+    }
+  };
+
+  return (
+    <section className="page-section">
+      <SectionHeader
+        eyebrow="Equivalencias"
+        title="Equivalencia de fracciones"
+        description="Dos fracciones son equivalentes si representan la misma parte del total. También pueden escribirse como decimal y porcentaje."
+      />
+
+      <div className="lesson-grid">
+        <article className="panel-card">
+          <SectionHeader
+            eyebrow="Tabla"
+            title="Fracción, decimal y porcentaje"
+            description="Escribe una fracción sencilla y observa su equivalencia."
+          />
+          <div className="input-grid">
+            <label className="field-card">
+              <span>Numerador</span>
+              <input type="number" value={numerator} onChange={(event) => setNumerator(clampInteger(event.target.value, 1, 100))} />
+            </label>
+            <label className="field-card">
+              <span>Denominador</span>
+              <input type="number" value={denominator} onChange={(event) => setDenominator(clampInteger(event.target.value, 1, 100))} />
+            </label>
+          </div>
+          <div className="number-strip">
+            <span><MathInline expression={fractionToLatex(baseFraction)} /></span>
+            <span>{formatNumber(decimalValue, 2)}</span>
+            <span>{formatNumber(percentageValue, 2)}%</span>
+            <span><MathInline expression={rawFractionToLatex(equivalentFraction)} /></span>
+          </div>
+          <div className="substitution-card">
+            <h3>Idea clave</h3>
+            <p>
+              <span>Equivalencia:</span> si multiplicamos numerador y denominador por el mismo número, la fracción vale lo mismo.
+            </p>
+          </div>
+        </article>
+
+        <article className="panel-card">
+          <SectionHeader
+            eyebrow="Reto"
+            title="Completa la equivalencia"
+            description="Encuentra la fracción equivalente, el decimal y el porcentaje."
+          />
+          <div className="challenge-card">
+            <div className="challenge-head">
+              <div>
+                <p className="eyebrow">Fracción base</p>
+                <h3><MathInline expression={fractionToLatex(challenge.fraction)} /></h3>
+              </div>
+              <button type="button" className="secondary-button" onClick={() => setChallenge(fractionEquivalenceChallengeFactory())}>
+                Nuevo reto
+              </button>
+            </div>
+            <div className="input-grid three-columns">
+              <label className="field-card">
+                <span>Numerador equivalente ({challenge.equivalent.denominator} abajo)</span>
+                <input
+                  type="number"
+                  value={challenge.numeratorAnswer}
+                  {...getChallengeLockState(challenge.status, isCelebrating)}
+                  onChange={(event) =>
+                    setChallenge((currentState) => ({ ...currentState, numeratorAnswer: event.target.value, status: "idle" }))
+                  }
+                />
+              </label>
+              <label className="field-card">
+                <span>Decimal</span>
+                <input
+                  type="text"
+                  value={challenge.decimalAnswer}
+                  {...getChallengeLockState(challenge.status, isCelebrating)}
+                  onChange={(event) =>
+                    setChallenge((currentState) => ({ ...currentState, decimalAnswer: event.target.value, status: "idle" }))
+                  }
+                />
+              </label>
+              <label className="field-card">
+                <span>Porcentaje</span>
+                <input
+                  type="text"
+                  value={challenge.percentageAnswer}
+                  {...getChallengeLockState(challenge.status, isCelebrating)}
+                  onChange={(event) =>
+                    setChallenge((currentState) => ({ ...currentState, percentageAnswer: event.target.value, status: "idle" }))
+                  }
+                />
+              </label>
+            </div>
+            <button type="button" className="primary-button" onClick={validateChallenge} {...getReviewButtonState(challenge.status, isCelebrating)}>
+              Revisar respuestá
+            </button>
+            {challenge.status === "success" && (
+              <p className="feedback success-message">Excelente. Esa fracción sí es equivalente y coincide con su decimal y porcentaje.</p>
+            )}
+            {challenge.status === "error" && (
+              <p className="feedback error-message">Recuerda mantener el mismo valor de la fracción y luego convertirla a decimal y porcentaje.</p>
             )}
           </div>
         </article>
@@ -3438,6 +4173,8 @@ function DecimalsSection({ onCelebrate, isCelebrating }) {
 function ExamSection({ onMegaCelebrate }) {
   const [questions, setQuestions] = useState(createExamQuestions);
   const [score, setScore] = useState(null);
+  const [gradeOverlay, setGradeOverlay] = useState(null);
+  const overlayTimeoutRef = useRef(null);
 
   const updateAnswer = (questionId, answer) => {
     setQuestions((currentQuestions) =>
@@ -3458,6 +4195,21 @@ function ExamSection({ onMegaCelebrate }) {
       return normalizeDecimalListAnswer(question.answer) === question.expected;
     }
 
+    if (question.answerType === "fraction-list") {
+      const normalizedList = String(question.answer)
+        .split(",")
+        .map((item) => parseFractionString(item))
+        .filter(Boolean)
+        .map((fraction) => fractionToString(fraction))
+        .join(",");
+
+      return normalizedList === question.expected;
+    }
+
+    if (question.answerType === "text") {
+      return String(question.answer).trim().toLowerCase() === String(question.expected).trim().toLowerCase();
+    }
+
     if (question.answerType === "fraction") {
       const parsedAnswer = parseFractionString(question.answer);
 
@@ -3476,24 +4228,29 @@ function ExamSection({ onMegaCelebrate }) {
   };
 
   const reviewExam = () => {
-    let points = 0;
+    const gradedQuestions = questions.map((question) => {
+      const success = gradeQuestion(question);
 
-    setQuestions((currentQuestions) =>
-      currentQuestions.map((question) => {
-        const success = gradeQuestion(question);
+      return {
+        ...question,
+        status: success ? "success" : "error"
+      };
+    });
+    const points = gradedQuestions.filter((question) => question.status === "success").length;
 
-        if (success) {
-          points += 1;
-        }
-
-        return {
-          ...question,
-          status: success ? "success" : "error"
-        };
-      })
-    );
+    setQuestions(gradedQuestions);
 
     setScore({ points, total: questions.length });
+    setGradeOverlay({ points, total: questions.length });
+
+    if (overlayTimeoutRef.current) {
+      window.clearTimeout(overlayTimeoutRef.current);
+    }
+
+    overlayTimeoutRef.current = window.setTimeout(() => {
+      setGradeOverlay(null);
+      overlayTimeoutRef.current = null;
+    }, 2600);
 
     if (points >= 8) {
       onMegaCelebrate("#4caf50");
@@ -3503,6 +4260,7 @@ function ExamSection({ onMegaCelebrate }) {
   const resetExam = () => {
     setQuestions(createExamQuestions());
     setScore(null);
+    setGradeOverlay(null);
   };
 
   const printExam = () => {
@@ -3511,8 +4269,28 @@ function ExamSection({ onMegaCelebrate }) {
     }
   };
 
+  useEffect(
+    () => () => {
+      if (overlayTimeoutRef.current) {
+        window.clearTimeout(overlayTimeoutRef.current);
+      }
+    },
+    []
+  );
+
   return (
     <section className="page-section exam-section">
+      {gradeOverlay && (
+        <div className="exam-grade-overlay no-print" aria-hidden="true">
+          <div className="exam-grade-chip">
+            <p className="eyebrow">Calificación</p>
+            <strong>
+              {gradeOverlay.points}/{gradeOverlay.total}
+            </strong>
+          </div>
+        </div>
+      )}
+
       <SectionHeader
         eyebrow="Examen"
         title="Examen del Bloque III"
@@ -3672,6 +4450,15 @@ function App() {
     );
   }, [gamificationProgress]);
 
+  const completedSyllabusCount = useMemo(
+    () => checkedSyllabusItems.filter(Boolean).length,
+    [checkedSyllabusItems]
+  );
+  const syllabusProgressPercentage = useMemo(
+    () => Math.round((completedSyllabusCount / syllabusItems.length) * 100),
+    [completedSyllabusCount]
+  );
+
   const toggleSyllabusItem = (index) => {
     setCheckedSyllabusItems((currentItems) =>
       currentItems.map((item, currentIndex) =>
@@ -3796,6 +4583,12 @@ function App() {
         </nav>
       </header>
 
+      <ProgressBanner
+        completedCount={completedSyllabusCount}
+        totalCount={syllabusItems.length}
+        percentage={syllabusProgressPercentage}
+      />
+
       {activeSection === "home" && (
         <HomeSection
           onNavigate={setActiveSection}
@@ -3815,6 +4608,12 @@ function App() {
       {activeSection === "percentages" && (
         <PercentagesSection onCelebrate={celebrate} isCelebrating={isCelebrating} />
       )}
+      {activeSection === "statistics" && (
+        <StatisticsSection onCelebrate={celebrate} isCelebrating={isCelebrating} />
+      )}
+      {activeSection === "bar-charts" && (
+        <BarChartsSection onCelebrate={celebrate} isCelebrating={isCelebrating} />
+      )}
       {activeSection === "rule-of-three" && (
         <RuleOfThreeSection onCelebrate={celebrate} isCelebrating={isCelebrating} />
       )}
@@ -3823,6 +4622,9 @@ function App() {
       )}
       {activeSection === "fractions" && (
         <FractionsSection onCelebrate={celebrate} isCelebrating={isCelebrating} />
+      )}
+      {activeSection === "fraction-equivalences" && (
+        <FractionEquivalencesSection onCelebrate={celebrate} isCelebrating={isCelebrating} />
       )}
       {activeSection === "mayan" && (
         <MayanSection onCelebrate={celebrate} isCelebrating={isCelebrating} />
